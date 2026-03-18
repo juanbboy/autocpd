@@ -2,11 +2,11 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";          // Para Cloud Firestore
 import { getAuth } from "firebase/auth"; // Para autenticación
 // --- Sincronización en tiempo real usando Firebase Realtime Database ---
-import { getDatabase, ref, set, onValue, off, update } from "firebase/database";
+import { getDatabase, ref, onValue, off } from "firebase/database";
 
 // --- Firebase Cloud Messaging (FCM) ---
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { useEffect, useRef } from "react";
+// import { getMessaging } from "firebase/messaging";
+import { useEffect } from "react";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -25,17 +25,6 @@ export const dbi = getDatabase(app);
 export const dbRef = ref(dbi, "imgStates");
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-
-// Inicializa FCM (notificaciones push) si es posible
-let messaging;
-if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-  try {
-    messaging = getMessaging(app);
-  } catch (e) {
-    messaging = undefined;
-  }
-}
-
 
 
 // Custom hook para sincronización en tiempo real
