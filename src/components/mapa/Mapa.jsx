@@ -11,11 +11,11 @@ const Mapa = () => {
   const isFirstLoad = useRef(true); // Para evitar sobrescribir al cargar por primera vez
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
   // --- Estado y helpers para mostrar todos los snapshots guardados en Firebase ---
-  const [allSnapshots, setAllSnapshots] = useState([]);
-  const [showAllSnapshots, setShowAllSnapshots] = useState(false);
-  const [loadingSnapshots, setLoadingSnapshots] = useState(false);
-  const [showObservaciones, setShowObservaciones] = useState(false);
-  const [observacionesList, setObservacionesList] = useState([]);
+  // const [allSnapshots, setAllSnapshots] = useState([]);
+  // const [showAllSnapshots, setShowAllSnapshots] = useState(false);
+  // const [loadingSnapshots, setLoadingSnapshots] = useState(false);
+  // const [showObservaciones, setShowObservaciones] = useState(false);
+  // const [observacionesList, setObservacionesList] = useState([]);
   // --- Opciones principales para los estados de las máquinas ---
   const [modal, setModal] = useState({ show: false, target: null, main: null });
 
@@ -721,17 +721,17 @@ const Mapa = () => {
         secondaryCustom: (secondaryIdx !== undefined && getSecondaryOptions()[secondaryIdx] === "Otros") ? customText : undefined
       }
     }));
-    const mainLabels = {
-      1: "Mecánico",
-      2: "Barrado",
-      3: "Electrónico",
-      4: "Producción",
-      5: "Seguimiento"
-    };
-    const mainLabel = mainLabels[modal.main] || "";
-    const subLabel = getSecondaryOptions()[secondaryIdx] === "Otros"
-      ? customText
-      : getSecondaryOptions()[secondaryIdx] || "";
+    // const mainLabels = {
+    //   1: "Mecánico",
+    //   2: "Barrado",
+    //   3: "Electrónico",
+    //   4: "Producción",
+    //   5: "Seguimiento"
+    // };
+    // const mainLabel = mainLabels[modal.main] || "";
+    // const subLabel = getSecondaryOptions()[secondaryIdx] === "Otros"
+    //   ? customText
+    //   : getSecondaryOptions()[secondaryIdx] || "";
     // fcmSendNotification(
     //   `Máquina ${id}`,
     //   `${mainLabel}${subLabel ? " - " + subLabel : ""}`,
@@ -1643,7 +1643,7 @@ const Mapa = () => {
       }
 
       {/* --- Modal para mostrar observaciones generales de los snapshots --- */}
-      {
+      {/* {
         showObservaciones && (
           <div style={{
             position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
@@ -1715,345 +1715,12 @@ const Mapa = () => {
             </div>
           </div>
         )
-      }
+      } */}
 
       {/* Modal para mostrar todos los snapshots guardados */}
-      {
-        showAllSnapshots && (
-          <div style={{
-            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-            background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99999
-          }}>
-            <div style={{
-              background: 'white',
-              padding: 24,
-              borderRadius: 8,
-              minWidth: 320,
-              maxWidth: 900,
-              maxHeight: '90vh',
-              overflow: 'auto',
-              position: 'relative',
-              textAlign: "center"
-            }}>
-              {/* Botón cerrar visible arriba a la derecha */}
-              <button
-                onClick={() => setShowAllSnapshots(false)}
-                style={{
-                  position: 'absolute',
-                  top: 12,
-                  right: 12,
-                  zIndex: 1000,
-                  fontSize: 22,
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#333',
-                  cursor: 'pointer'
-                }}
-                aria-label="Cerrar"
-                title="Cerrar"
-              >
-                ×
-              </button>
-              <h4>Todos los estados guardados</h4>
-              {loadingSnapshots ? (
-                <div>Cargando...</div>
-              ) : (
-                allSnapshots.length === 0 ? (
-                  <div>No hay snapshots guardados.</div>
-                ) : (
-                  <div style={{ maxHeight: 500, overflowY: 'auto' }}>
-                    <button
-                      className="btn btn-primary mb-3"
-                      onClick={() => {
-                        // Renderiza la app con la información guardada (igual a la app)
-                        const mainLabels = {};
-                        mainOptions.forEach(opt => { mainLabels[opt.main] = opt.label; });
-                        // Usa secondaryOptionsMap directamente (el definido arriba en el componente)
-                        const html = `
-                          <html>
-                          <head>
-                            <title>Visualización gráfica de snapshots</title>
-                            <style>
-                              body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
-                              .snap { margin-bottom: 32px; border-bottom: 1px solid #ccc; padding-bottom: 16px; }
-                              .snap h3 { color: #007bff; margin-bottom: 8px; }
-                              .img-grid { display: flex; flex-wrap: wrap; gap: 18px; }
-                              .img-col { display: flex; flex-direction: column; align-items: center; margin: 8px; width: 90px; }
-                              .img-col img { border-radius: 12px; border: 2px solid #888; width: 90px; height: 90px; object-fit: contain; }
-                              .img-label { font-size: 13px; color: #555; margin-top: 2px; }
-                              .main-label { font-size: 13px; font-weight: bold; color: #222; }
-                              .secondary-label { font-size: 12px; color: #007bff; }
-                            </style>
-                          </head>
-                          <body>
-                            <h2>Visualización gráfica de snapshots</h2>
-                            ${allSnapshots.map(({ key, value }) => `
-                              <div class="snap">
-                                <h3>${key}</h3>
-                                <div class="img-grid">
-                                  ${Object.entries(value).map(([id, state]) => {
-                          let src = state.src || "https://dummyimage.com/90x90/ccc/fff&text=" + id;
-                          let mainLabel = mainLabels[state.main] || "";
-                          let secondaryLabel = "";
-                          if (typeof state === "object" && state.secondary != null && state.main != null && state.main !== 4) {
-                            const opts = secondaryOptionsMap[state.main] || [];
-                            // Mostrar la opción personalizada si es "Otros"
-                            if (opts[state.secondary] === "Otros" && state.secondaryCustom) {
-                              secondaryLabel = state.secondaryCustom;
-                            } else {
-                              secondaryLabel = opts[state.secondary] || "";
-                            }
-                          }
-                          return `
-                                      <div class="img-col">
-                                        <img src="${src}" alt="${id}" title="${id}" />
-                                        <div class="img-label"><b>${id}</b></div>
-                                        <div class="main-label">${mainLabel}</div>
-                                        <div class="secondary-label">${secondaryLabel}</div>
-                                      </div>
-                                    `;
-                        }).join('')}
-                                </div>
-                              </div>
-                            `).join('')}
-                          </body>
-                          </html>
-                        `;
-                        const win = window.open();
-                        win.document.write(html);
-                        win.document.title = "Visualización gráfica de snapshots";
-                      }}
-                    >
-                      Ver todos en otra pestaña
-                    </button>
-                    {allSnapshots.map(({ key, value, info }) => {
-                      // Formatea la fecha a dd/mm/aa hh:mm
-                      let fecha = "";
-                      const match = key.match(/^(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})/);
-                      if (match) {
-                        const [/*_*/, y, m, d, h, min] = match;
-                        fecha = `${d}/${m}/${y.slice(2)} ${h}:${min}`;
-                      }
-                      // Usa solo la fecha/hora de info.fecha si existe, si no la del key
-                      let fechaMostrar = info.fecha
-                        ? new Date(info.fecha).toLocaleString()
-                        : fecha;
 
-                      return (
-                        <div key={key} style={{ marginBottom: 18 }}>
-                          <div style={{ fontSize: 15, color: "#000", marginBottom: 8 }}>
-                            {fechaMostrar}
-                            {info.guardadoPor && (
-                              <> &nbsp;|&nbsp; <b>{info.guardadoPor}</b></>
-                            )}
-                            {/* Botón para ver bitácora */}
-                            {info.bitacoraEstados && Object.keys(info.bitacoraEstados).length > 0 && (
-                              <>
-                                <button
-                                  className="btn btn-outline-primary btn-sm ms-2"
-                                  style={{ fontSize: 13, padding: "2px 10px" }}
-                                  onClick={() => {
-                                    // Mostrar modal con la bitácora gráfica
-                                    const modalDiv = document.createElement('div');
-                                    modalDiv.style.position = 'fixed';
-                                    modalDiv.style.top = 0;
-                                    modalDiv.style.left = 0;
-                                    modalDiv.style.width = '100vw';
-                                    modalDiv.style.height = '100vh';
-                                    modalDiv.style.background = 'rgba(0,0,0,0.3)';
-                                    modalDiv.style.display = 'flex';
-                                    modalDiv.style.alignItems = 'center';
-                                    modalDiv.style.justifyContent = 'center';
-                                    modalDiv.style.zIndex = 999999;
-
-                                    const inner = document.createElement('div');
-                                    inner.style.background = 'white';
-                                    inner.style.padding = '24px';
-                                    inner.style.borderRadius = '12px';
-                                    inner.style.textAlign = 'center';
-                                    inner.style.minWidth = '320px';
-                                    inner.style.maxWidth = '95vw';
-                                    inner.style.maxHeight = '90vh';
-                                    inner.style.overflow = 'auto';
-
-                                    const title = document.createElement('div');
-                                    title.style.fontSize = '20px';
-                                    title.style.marginBottom = '16px';
-                                    title.innerText = 'Bitácora gráfica de máquinas atendidas';
-                                    inner.appendChild(title);
-
-                                    // Renderiza el grid de la bitácora
-                                    const grid = document.createElement('div');
-                                    grid.style.display = "grid";
-                                    grid.style.gap = "0";
-                                    grid.style.justifyItems = "center";
-                                    grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(120px, 1fr))";
-                                    grid.style.maxHeight = "60vh";
-                                    grid.style.overflowY = "auto";
-                                    Object.entries(info.bitacoraEstados).forEach(([id, val]) => {
-                                      // Celda de cada máquina
-                                      const cell = document.createElement('div');
-                                      cell.style.marginBottom = "2px";
-                                      cell.style.width = "120px";
-                                      cell.style.textAlign = "center";
-
-                                      // Imagen de la máquina (input tipo image)
-                                      const img = document.createElement('input');
-                                      img.type = "image";
-                                      img.width = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19"].includes(id) ? 90 : 60;
-                                      img.style.borderRadius = "16px";
-                                      img.style.marginBottom = "0";
-                                      img.style.border = "2px solid #eee";
-                                      img.style.background = "#fff";
-                                      img.src = val.src || cpd;
-                                      cell.appendChild(img);
-
-                                      // ID
-                                      const idDiv = document.createElement('div');
-                                      idDiv.innerHTML = `<strong>${id}</strong>`;
-                                      cell.appendChild(idDiv);
-
-                                      // Main label como texto
-                                      const mainDiv = document.createElement('div');
-                                      mainDiv.style.fontSize = "13px";
-                                      mainDiv.style.fontWeight = "bold";
-                                      mainDiv.style.color = "#222";
-                                      mainDiv.innerText = val.main ? `${typeof val.main === "string" ? val.main : ""}` : "";
-                                      cell.appendChild(mainDiv);
-
-                                      // Secondary label como texto
-                                      const secDiv = document.createElement('div');
-                                      secDiv.style.fontSize = "12px";
-                                      secDiv.style.color = "#007bff";
-                                      secDiv.innerText = val.secondary ? `${typeof val.secondary === "string" ? val.secondary : ""}` : "";
-                                      cell.appendChild(secDiv);
-
-                                      grid.appendChild(cell);
-                                    });
-
-                                    inner.appendChild(grid);
-
-                                    const btnCerrar = document.createElement('button');
-                                    btnCerrar.innerText = "Cerrar";
-                                    btnCerrar.className = "btn btn-secondary mt-3";
-                                    btnCerrar.style.fontSize = "16px";
-                                    btnCerrar.onclick = () => {
-                                      document.body.removeChild(modalDiv);
-                                    };
-                                    inner.appendChild(btnCerrar);
-
-                                    modalDiv.appendChild(inner);
-                                    document.body.appendChild(modalDiv);
-                                  }}
-                                >Ver bitácora</button>
-                                {/* Botón para ver observaciones de este estado guardado */}
-                                <button
-                                  className="btn btn-outline-info btn-sm ms-2"
-                                  style={{ fontSize: 13, padding: "2px 10px" }}
-                                  onClick={() => {
-                                    // Mostrar modal con la observación de este snapshot
-                                    const modalDiv = document.createElement('div');
-                                    modalDiv.style.position = 'fixed';
-                                    modalDiv.style.top = 0;
-                                    modalDiv.style.left = 0;
-                                    modalDiv.style.width = '100vw';
-                                    modalDiv.style.height = '100vh';
-                                    modalDiv.style.background = 'rgba(0,0,0,0.3)';
-                                    modalDiv.style.display = 'flex';
-                                    modalDiv.style.alignItems = 'center';
-                                    modalDiv.style.justifyContent = 'center';
-                                    modalDiv.style.zIndex = 999999;
-
-                                    const inner = document.createElement('div');
-                                    inner.style.background = 'white';
-                                    inner.style.padding = '24px';
-                                    inner.style.borderRadius = '12px';
-                                    inner.style.textAlign = 'center';
-                                    inner.style.minWidth = '320px';
-                                    inner.style.maxWidth = '95vw';
-                                    inner.style.maxHeight = '90vh';
-                                    inner.style.overflow = 'auto';
-
-                                    const title = document.createElement('div');
-                                    title.style.fontSize = '20px';
-                                    title.style.marginBottom = '16px';
-                                    title.innerText = 'Observaciones generales';
-                                    inner.appendChild(title);
-
-                                    const obsDiv = document.createElement('div');
-                                    obsDiv.style.fontSize = '16px';
-                                    obsDiv.style.color = '#333';
-                                    obsDiv.style.margin = '12px 0 18px 0';
-                                    obsDiv.style.whiteSpace = 'pre-line';
-                                    obsDiv.innerText = info.observaciones && info.observaciones.trim() !== ""
-                                      ? info.observaciones
-                                      : "No hay observaciones guardadas para este estado.";
-                                    inner.appendChild(obsDiv);
-
-                                    const btnCerrar = document.createElement('button');
-                                    btnCerrar.innerText = "Cerrar";
-                                    btnCerrar.className = "btn btn-secondary mt-3";
-                                    btnCerrar.style.fontSize = "16px";
-                                    btnCerrar.onclick = () => {
-                                      document.body.removeChild(modalDiv);
-                                    };
-                                    inner.appendChild(btnCerrar);
-
-                                    modalDiv.appendChild(inner);
-                                    document.body.appendChild(modalDiv);
-                                  }}
-                                >Observaciones</button>
-                              </>
-                            )}
-                          </div>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
-                            {Object.entries(value).map(([id, state]) => (
-                              <div key={id} style={{
-                                display: "flex", flexDirection: "column", alignItems: "center", margin: 10, width: 120
-                              }}>
-                                <img
-                                  src={state.src || "https://dummyimage.com/105x105/ccc/fff&text=" + id}
-                                  alt={id}
-                                  title={id}
-                                  style={{
-                                    borderRadius: 16,
-                                    border: "2px solid #888",
-                                    width: 95,
-                                    height: 95,
-                                    objectFit: "contain"
-                                  }}
-                                />
-                                <div style={{ fontSize: 14, color: "#555", marginTop: 2 }}><b>{id}</b></div>
-                                {/* Mostrar main y secondary como texto */}
-                                <div style={{ fontSize: 13, fontWeight: "bold", color: "#222" }}>
-                                  {state.main ? `${state.main}` : ""}
-                                </div>
-                                <div style={{ fontSize: 12, color: "#007bff" }}>
-                                  {state.secondary ? `${state.secondary}` : ""}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div >
-                )
-              )}
-              {/* Botón cerrar modal visible abajo */}
-              <div style={{ textAlign: "center", marginTop: 24 }}>
-                <button
-                  className="btn btn-secondary"
-                  style={{ fontSize: 18, padding: "8px 32px" }}
-                  onClick={() => setShowAllSnapshots(false)}
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-        )
-      }
+    
+      
     </div >
   )
 }
