@@ -14,8 +14,6 @@ const Mapa = () => {
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
   const [modal, setModal] = useState({ show: false, target: null, main: null });
 
-
-  // Usa el hook personalizado para escuchar cambios en la base de datos
   useFirebaseSync(dbRef, setImgStates, ignoreNext, isFirstLoad);
 
   useEffect(() => {
@@ -35,8 +33,6 @@ const Mapa = () => {
     const cleanImgStates = removeUndefined(imgStates);
     set(dbRef, cleanImgStates);
   }, [imgStates]);
-
-
 
 
   // Opciones principales (colores y etiquetas)
@@ -78,6 +74,7 @@ const Mapa = () => {
   function img(event) {
     setModal({ show: true, target: event.target, main: null });
   }
+
   // Devuelve la etiqueta de la subopción seleccionada para una máquina
   function getSecondaryLabel(id) {
     const val = imgStates[id];

@@ -1,11 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";          // Para Cloud Firestore
-import { getAuth } from "firebase/auth"; // Para autenticación
-// --- Sincronización en tiempo real usando Firebase Realtime Database ---
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import { getDatabase, ref } from "firebase/database";
-
-// --- Firebase Cloud Messaging (FCM) ---
-// import { getMessaging } from "firebase/messaging";
+import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -18,9 +15,27 @@ const firebaseConfig = {
   databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL // URL de la base de datos Realtime
 };
 
-// Inicializa la app de Firebase y la referencia a la base de datos
 const app = initializeApp(firebaseConfig);
 export const dbi = getDatabase(app);
 export const dbRef = ref(dbi, "imgStates");
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const messaging = getMessaging(app);
+
+export const requestNotificationPermissionAndToken = async () => {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      const currentToken = await messaging.getToken({
+        vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
+        serviceWorkerRegistration: await navigator.serviceWorker.register('/firebase-messaging-sw.js')
+      });
+      return currentToken;
+    } else {
+      throw new Error('Permiso de notificaciones denegado');
+    }
+  } catch (error) {
+    console.error('Error al obtener el token de notificaciones:', error);
+    return null;
+  }
+};
