@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { onValue, off, set } from 'firebase/database';
+import { set } from 'firebase/database';
+import useFirebaseSync from '../../hooks/useFirebaseSync';
 import { removeUndefined } from '../../utils/Utils';
 import cpd from '../../assets/cpdblanco.png';
 import './mapa.css';
 import { dbRef } from '../../firebase/firebase-config';
+
 
 const Mapa = () => {
 
@@ -13,18 +15,8 @@ const Mapa = () => {
   const [modal, setModal] = useState({ show: false, target: null, main: null });
 
 
-  useEffect(() => {
-    // Escucha cambios en la base de datos y actualiza el estado local
-    const handler = onValue(dbRef, (snapshot) => {
-      const remote = snapshot.val();
-      if (remote && typeof remote === "object" && Object.keys(remote).length > 0) {
-        ignoreNext.current = true;
-        setImgStates(remote);
-      }
-      isFirstLoad.current = false;
-    });
-    return () => off(dbRef, "value", handler);
-  }, []);
+  // Usa el hook personalizado para escuchar cambios en la base de datos
+  useFirebaseSync(dbRef, setImgStates, ignoreNext, isFirstLoad);
 
   useEffect(() => {
     // Sube los cambios locales a Firebase (evita subir si el cambio viene de Firebase)
@@ -1155,8 +1147,8 @@ const Mapa = () => {
 
       {/* Modal para mostrar todos los snapshots guardados */}
 
-    
-      
+
+
     </div >
   )
 }
