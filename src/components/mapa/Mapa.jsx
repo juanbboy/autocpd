@@ -5,6 +5,8 @@ import { removeUndefined } from '../../utils/Utils';
 import cpd from '../../assets/cpdblanco.png';
 import './mapa.css';
 import { dbRef } from '../../firebase/firebase-config';
+import { requestNotificationPermissionAndToken } from '../../services/token';
+import { useFCM } from '../../hooks/useFcm';
 
 
 const Mapa = () => {
@@ -13,6 +15,8 @@ const Mapa = () => {
   const isFirstLoad = useRef(true); // Para evitar sobrescribir al cargar por primera vez
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
   const [modal, setModal] = useState({ show: false, target: null, main: null });
+
+  const { notification } = useFCM();
 
   useFirebaseSync(dbRef, setImgStates, ignoreNext, isFirstLoad);
 
@@ -34,6 +38,25 @@ const Mapa = () => {
     set(dbRef, cleanImgStates);
   }, [imgStates]);
 
+  useEffect(() => {
+    requestNotificationPermissionAndToken().then(token => {
+      if (token) {
+        console.log('Token FCMmapa:', token);
+        // Aquí puedes enviar el token a tu backend si lo necesitas
+      }
+    });
+  }, []);
+
+  const noti = () => {
+    return <div> (  {notification && (
+      <>
+        <h4>{notification.notification?.title}</h4>
+        <p>{notification.notification?.body}</p>
+      </>
+    )}
+      )
+    </div>
+  }
 
   // Opciones principales (colores y etiquetas)
   const mainOptions = [
@@ -167,10 +190,9 @@ const Mapa = () => {
     }, 0);
   }
 
-
-
   return (
     <div className="App">
+      {noti()}
       <h1 className="text-center p-4">
         <span className="d-block d-md-none" style={{ fontSize: 26 }}>Circulares Pequeño Diametro</span>
         <span className="d-none d-md-block" style={{ fontSize: 36 }}>Circulares Pequeño Diametro</span>
@@ -1027,7 +1049,7 @@ const Mapa = () => {
                       <div className="mb-3" style={{ fontSize: 24 }}>Seleccione una causa</div>
                       {getSecondaryOptions().map((label, idx) => (
                         label === "Otros" ? (
-                          <button key={idx}
+                          <button key={label}
                             className="btn btn-outline-secondary m-2"
                             style={{ fontSize: 24, padding: '12px 24px' }}
                             onClick={() => {
@@ -1043,7 +1065,7 @@ const Mapa = () => {
 
                         ) : (
                           <button
-                            key={idx}
+                            key={label}
                             className="btn btn-outline-secondary m-2"
                             style={{ fontSize: 24, padding: '12px 24px' }}
                             onClick={() => handleSecondaryOption(idx)}
