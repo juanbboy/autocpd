@@ -1,5 +1,6 @@
 import { getToken } from "firebase/messaging";
 import { messaging } from "../firebase/firebase-config";
+// import { sendToken } from "../services/sendtoken";
 
 export const requestNotificationPermissionAndToken = async () => {
     try {
@@ -8,7 +9,7 @@ export const requestNotificationPermissionAndToken = async () => {
             const currentToken = await getToken(messaging, {
                 vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
                 serviceWorkerRegistration: await navigator.serviceWorker.register('/firebase-messaging-sw.js')
-            });
+            })
             return currentToken;
         } else {
             throw new Error('Permiso de notificaciones denegado');

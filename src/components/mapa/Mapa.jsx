@@ -5,7 +5,7 @@ import { removeUndefined } from '../../utils/Utils';
 import cpd from '../../assets/cpdblanco.png';
 import './mapa.css';
 import { dbRef } from '../../firebase/firebase-config';
-import { requestNotificationPermissionAndToken } from '../../services/token';
+// import { requestNotificationPermissionAndToken } from '../../hooks/useToken';
 import { useFCM } from '../../hooks/useFcm';
 
 
@@ -37,15 +37,6 @@ const Mapa = () => {
     const cleanImgStates = removeUndefined(imgStates);
     set(dbRef, cleanImgStates);
   }, [imgStates]);
-
-  useEffect(() => {
-    requestNotificationPermissionAndToken().then(token => {
-      if (token) {
-        console.log('Token FCMmapa:', token);
-        // Aquí puedes enviar el token a tu backend si lo necesitas
-      }
-    });
-  }, []);
 
   const noti = () => {
     return <div> (  {notification && (
