@@ -1,23 +1,23 @@
-import { requestNotificationPermissionAndToken } from "./useToken";
-import { useEffect } from "react";
-import { listenForMessages } from "../services/fcm";
-import { sendToken } from "../services/sendtoken";
+// import { requestNotificationPermissionAndToken } from "./useToken";
+// import { useEffect } from "react";
+// import { listenForMessages } from "../services/fcm";
+// import { sendToken } from "../services/sendtoken";
 
-export const useFCM = () => {
+// export const useFCM = () => {
 
-    useEffect(() => {
-        const init = async () => {
-            const token = await requestNotificationPermissionAndToken();
-            if (token) {
-                sendToken(token);
-            }
-        };
-        init();
-        const unsubscribe = listenForMessages(() => { });
+//     useEffect(() => {
+//         const init = async () => {
+//             const token = await requestNotificationPermissionAndToken();
+//             if (token) {
+//                 sendToken(token);
+//             }
+//         };
+//         init();
+//         const unsubscribe = listenForMessages(() => { });
 
-        return () => unsubscribe();
-    }, []);
-};
+//         return () => unsubscribe();
+//     }, []);
+// };
 
 
 // import { requestNotificationPermissionAndToken } from "./useToken";
