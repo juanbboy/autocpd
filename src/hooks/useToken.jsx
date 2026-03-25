@@ -1,6 +1,6 @@
 import { getToken } from "firebase/messaging";
 import { messaging } from "../firebase/firebase-config";
-// import { sendToken } from "../services/sendtoken";
+
 
 export const requestNotificationPermissionAndToken = async () => {
     try {

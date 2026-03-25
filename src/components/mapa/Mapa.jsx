@@ -6,7 +6,7 @@ import cpd from '../../assets/cpdblanco.png';
 import './mapa.css';
 import { dbRef } from '../../firebase/firebase-config';
 // import { requestNotificationPermissionAndToken } from '../../hooks/useToken';
-import { useFCM } from '../../hooks/useFcm';
+// import { useFCM }  from '../../hooks/useFcm';
 
 
 const Mapa = () => {
@@ -16,10 +16,10 @@ const Mapa = () => {
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
   const [modal, setModal] = useState({ show: false, target: null, main: null });
 
-  const { notification } = useFCM();
+  // const { notification } = useFCM();
 
   useFirebaseSync(dbRef, setImgStates, ignoreNext, isFirstLoad);
-
+  // useFCM();
   useEffect(() => {
     // Sube los cambios locales a Firebase (evita subir si el cambio viene de Firebase)
     if (isFirstLoad.current) {
@@ -37,17 +37,6 @@ const Mapa = () => {
     const cleanImgStates = removeUndefined(imgStates);
     set(dbRef, cleanImgStates);
   }, [imgStates]);
-
-  const noti = () => {
-    return <div> (  {notification && (
-      <>
-        <h4>{notification.notification?.title}</h4>
-        <p>{notification.notification?.body}</p>
-      </>
-    )}
-      )
-    </div>
-  }
 
   // Opciones principales (colores y etiquetas)
   const mainOptions = [
@@ -183,7 +172,6 @@ const Mapa = () => {
 
   return (
     <div className="App">
-      {noti()}
       <h1 className="text-center p-4">
         <span className="d-block d-md-none" style={{ fontSize: 26 }}>Circulares Pequeño Diametro</span>
         <span className="d-none d-md-block" style={{ fontSize: 36 }}>Circulares Pequeño Diametro</span>
@@ -988,7 +976,7 @@ const Mapa = () => {
               }}
             >
               {!modal.main ? (
-                <>
+                <div>
                   <div className="mb-3" style={{ fontSize: 24 }}>¿Escoge opción requerida?</div>
                   {/* Mostrar subopción elegida anteriormente si existe */}
                   {(() => {
@@ -1027,16 +1015,16 @@ const Mapa = () => {
                   <div>
                     <button className="btn btn-link mt-3" style={{ fontSize: 20 }} onClick={() => setModal({ show: false, target: null, main: null })}>Cancelar</button>
                   </div>
-                </>
+                </div>
               ) : (
-                <>
+                <div>
                   {/* Si es Produccion, no mostrar subopciones ni botones */}
                   {modal.main === 4 ? (
                     <div className="mb-3" style={{ fontSize: 22, color: "#888" }}>
                       En Producción.
                     </div>
                   ) : (
-                    <>
+                    <div>
                       <div className="mb-3" style={{ fontSize: 24 }}>Seleccione una causa</div>
                       {getSecondaryOptions().map((label, idx) => (
                         label === "Otros" ? (
@@ -1065,7 +1053,7 @@ const Mapa = () => {
                           </button>
                         )
                       ))}
-                    </>
+                    </div>
                   )}
                   <div>
                     <button className="btn btn-link mt-3" style={{ fontSize: 20 }} onClick={() => setModal({ show: false, target: null, main: null })}>Cancelar</button>
@@ -1073,7 +1061,7 @@ const Mapa = () => {
                       <button className="btn btn-link mt-3" style={{ fontSize: 20 }} onClick={() => setModal({ show: true, target: modal.target, main: null })}>Volver</button>
                     )}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
@@ -1131,7 +1119,7 @@ const Mapa = () => {
                       }}>
                         <div style={{ fontSize: 15, color: "#000" }}>
                           {fecha}
-                          {guardadoPor && <> &nbsp;|&nbsp; <b>{guardadoPor}</b></>}
+                          {guardadoPor && <div> &nbsp;|&nbsp; <b>{guardadoPor}</b></div>}
                         </div>
                         <div style={{ textAlign: "start", fontSize: 16, color: "#333", margin: 5, whiteSpace: "pre-line" }}>
                           {observaciones}
