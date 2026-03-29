@@ -25,7 +25,7 @@ const AppRouter = () => {
         onAuthStateChanged(auth, (user) => {
             if (user?.uid) {
                 setIsLogged(true);
-                dispatch(login(user.uid, user.displayName));
+                dispatch(login(user.uid, user.displayName, user.email));
             } else {
                 setIsLogged(false);
             }

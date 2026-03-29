@@ -13,7 +13,7 @@ const Navbarr = () => {
         dispatch(startLogout());
     }
 
-
+    console.log(name)
 
     return (
         <Navbar bg="dark" variant="dark" expand="lg" className='justify-content-center'>
@@ -24,6 +24,7 @@ const Navbarr = () => {
             <Navbar.Brand className="mx-2 px-2 " href="/">
             </Navbar.Brand>
             <Nav className="mx-auto justify-content-center">
+                <Nav.Link href="read">lector</Nav.Link>
                 <Navbar.Brand><h3>{name}</h3></Navbar.Brand>
             </Nav>
             <Navbar.Brand className="mx-2 px-2 btn" onClick={handleLogout}>Salir</Navbar.Brand>
