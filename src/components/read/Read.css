@@ -1,0 +1,487 @@
+/* ====================================
+   ESTILOS GENERALES DEL CONTENEDOR
+   ==================================== */
+
+/* Contenedor principal del componente */
+.read-container {
+    max-width: 1200px;
+    /* Ancho máximo del contenedor */
+    margin: 20px auto;
+    /* Margen superior/inferior 20px, centrado horizontalmente */
+    padding: 20px;
+    /* Espacio interno */
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    /* Degradado de fondo */
+    border-radius: 10px;
+    /* Esquinas redondeadas */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Sombra para profundidad */
+}
+
+/* Título principal h2 */
+.read-container h2 {
+    color: #2c3e50;
+    /* Color del texto gris oscuro */
+    margin-bottom: 30px;
+    /* Espacio bajo el título */
+    font-size: 2em;
+    /* Tamaño grande */
+    text-align: center;
+    /* Centrado */
+}
+
+/* ====================================
+   SECCIÓN DE CARGA DE ARCHIVO
+   ==================================== */
+
+/* Contenedor de la sección de carga */
+.upload-section {
+    background: white;
+    /* Fondo blanco */
+    padding: 30px;
+    /* Espacio interno */
+    border-radius: 8px;
+    /* Esquinas redondeadas */
+    text-align: center;
+    /* Centrado */
+    margin-bottom: 30px;
+    /* Espacio bajo */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Sombra sutil */
+}
+
+/* Label para el archivo (container del input) */
+.file-label {
+    cursor: pointer;
+    /* Cambiar cursor a mano */
+}
+
+/* Input file oculto */
+.file-input {
+    display: none;
+    /* No mostrar input de file por defecto */
+}
+
+/* Botón visible para seleccionar archivo */
+.file-button {
+    display: inline-block;
+    /* Mostrar como bloque en línea */
+    padding: 12px 30px;
+    /* Espaciado interno */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Degradado púrpura */
+    color: white;
+    /* Texto blanco */
+    border-radius: 5px;
+    /* Esquinas redondeadas */
+    font-weight: 600;
+    /* Texto semi-bold */
+    transition: all 0.3s ease;
+    /* Transición suave de animaciones */
+    user-select: none;
+    /* No permitir seleccionar texto */
+}
+
+/* Efecto hover cuando el ratón está sobre el botón */
+.file-button:hover {
+    transform: translateY(-2px);
+    /* Mover hacia arriba 2px */
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    /* Aumentar sombra */
+}
+
+/* Párrafo con el nombre del archivo cargado */
+.file-name {
+    margin-top: 15px;
+    /* Espacio superior */
+    color: #27ae60;
+    /* Verde para indicar éxito */
+    font-weight: 500;
+    /* Semi-bold */
+}
+
+/* ====================================
+   CONFIGURACIÓN DE GRÁFICOS
+   ==================================== */
+
+/* Contenedor de controles de gráfico */
+.chart-config {
+    background: white;
+    /* Fondo blanco */
+    padding: 20px;
+    /* Espacio interno */
+    border-radius: 8px;
+    /* Esquinas redondeadas */
+    margin-bottom: 30px;
+    /* Espacio bajo */
+    display: grid;
+    /* Usar grid layout */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* Columnas responsivas */
+    gap: 15px;
+    /* Espacio entre elementos */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Sombra sutil */
+}
+
+/* Grupo individual de configuración (label + select) */
+.config-group {
+    display: flex;
+    /* Usar flexbox */
+    flex-direction: column;
+    /* Apilar elementos verticalmente */
+}
+
+/* Label dentro del grupo de configuración */
+.config-group label {
+    font-weight: 600;
+    /* Semi-bold */
+    color: #2c3e50;
+    /* Gris oscuro */
+    margin-bottom: 8px;
+    /* Espacio bajo el label */
+    font-size: 0.9em;
+    /* Tamaño ligeramente más pequeño */
+}
+
+/* Select dropdowns */
+.config-group select {
+    padding: 10px;
+    /* Espacio interno */
+    border: 2px solid #e0e0e0;
+    /* Borde gris claro */
+    border-radius: 5px;
+    /* Esquinas redondeadas */
+    font-size: 0.95em;
+    /* Tamaño reducido */
+    background-color: white;
+    /* Fondo blanco */
+    cursor: pointer;
+    /* Cursor como mano */
+    transition: border-color 0.3s ease;
+    /* Transición suave del color del borde */
+}
+
+/* Efecto focus en los selects */
+.config-group select:focus {
+    outline: none;
+    /* Quitar outline por defecto */
+    border-color: #667eea;
+    /* Cambiar borde a púrpura */
+}
+
+/* ====================================
+   SECCIÓN DE GRÁFICO
+   ==================================== */
+
+/* Contenedor del gráfico */
+.chart-section {
+    background: white;
+    /* Fondo blanco */
+    padding: 25px;
+    /* Espacio interno */
+    border-radius: 8px;
+    /* Esquinas redondeadas */
+    margin-bottom: 30px;
+    /* Espacio bajo */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Sombra sutil */
+}
+
+/* Título del gráfico */
+.chart-section h3 {
+    color: #502d2c;
+    /* Gris oscuro */
+    margin-bottom: 20px;
+    /* Espacio bajo */
+    font-size: 1.3em;
+    /* Tamaño mediano */
+}
+
+/* ====================================
+   SECCIÓN DE TABLA
+   ==================================== */
+
+/* Contenedor de la tabla */
+.table-section {
+    background: white;
+    /* Fondo blanco */
+    padding: 25px;
+    /* Espacio interno */
+    border-radius: 8px;
+    /* Esquinas redondeadas */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Sombra sutil */
+}
+
+/* Título de la tabla */
+.table-section h3 {
+    color: #2c3e50;
+    /* Gris oscuro */
+}
+
+/* Filtros por año/mes estilo "bonito" */
+.filter-card {
+    background: #ffffff;
+    border: 1px solid #e0e5ee;
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.filter-card h4 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    color: #34495e;
+}
+
+.hint {
+    margin: 2px 0 10px;
+    font-size: 0.86rem;
+    color: #7f8c8d;
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.92rem;
+    color: #2c3e50;
+    padding: 4px 6px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.checkbox-label:hover {
+    background: #f0f4fb;
+    border-color: #d6e3fc;
+}
+
+.selected-chip-group {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.selected-chip {
+    background: #5a8ce1;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* Estilos para la columna de cumplimiento */
+.cumplimiento-alto {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+}
+
+.cumplimiento-medio {
+    background-color: #fff3cd;
+    color: #856404;
+    font-weight: bold;
+}
+
+.cumplimiento-bajo {
+    background-color: #f8d7da;
+    color: #721c24;
+    font-weight: bold;
+}
+
+/* Resumen del cumplimiento */
+.cumplimiento-summary {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.summary-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+.reference-row {
+    background-color: #eef2ff;
+}
+
+.reference-row:hover {
+    background-color: #dee5ff;
+}
+
+.op-row {
+    background-color: #f9faff;
+}
+
+.op-row td {
+    padding-left: 18px;
+    font-size: 0.92rem;
+    color: #2f3a52;
+}
+
+
+/* Wrapper para tabla (permite scroll horizontal si es necesario) */
+.table-wrapper {
+    overflow-x: auto;
+    /* Scroll horizontal si es necesario */
+    border-radius: 5px;
+    /* Esquinas redondeadas */
+    border: 1px solid #e0e0e0;
+    /* Borde gris claro */
+}
+
+/* Tabla de datos */
+.data-table {
+    width: 100%;
+    /* Ancho completo */
+    border-collapse: collapse;
+    /* Colapsar bordes adyacentes */
+    font-size: 0.95em;
+    /* Tamaño reducido */
+}
+
+/* Encabezado de la tabla */
+.data-table thead {
+    background-color: #667eea;
+    /* Fondo púrpura */
+    color: white;
+    /* Texto blanco */
+}
+
+/* Celdas de encabezado (th) */
+.data-table th {
+    padding: 15px;
+    /* Espacio interno */
+    text-align: left;
+    /* Alinear texto a la izquierda */
+    font-weight: 600;
+    /* Semi-bold */
+    border-bottom: 2px solid #667eea;
+    /* Borde inferior púrpura */
+}
+
+/* Celdas de datos (td) */
+.data-table td {
+    padding: 12px 15px;
+    /* Espacio interno */
+    border-bottom: 1px solid #f0f0f0;
+    /* Borde inferior gris muy claro */
+    color: #555;
+    /* Gris para el texto */
+}
+
+/* Efecto hover en filas de la tabla */
+.data-table tbody tr:hover {
+    background-color: #f8f9ff;
+    /* Fondo azul muy claro */
+    cursor: pointer;
+    /* Cursor como mano */
+}
+
+/* Alternar colores en filas (filas pares) */
+.data-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+    /* Fondo gris muy claro */
+}
+
+/* ====================================
+   ESTADO VACÍO
+   ==================================== */
+
+/* Mensaje cuando no hay datos */
+.empty-state {
+    background: white;
+    /* Fondo blanco */
+    padding: 60px 20px;
+    /* Espacio interno generoso */
+    border-radius: 8px;
+    /* Esquinas redondeadas */
+    text-align: center;
+    /* Centrado */
+    color: #7f8c8d;
+    /* Gris más claro */
+    font-size: 1.1em;
+    /* Tamaño aumentado */
+}
+
+/* ====================================
+   ESTILOS RESPONSIVOS (MÓVIL)
+   ==================================== */
+
+/* Estilos para pantallas pequeñas (hasta 768px) */
+@media (max-width: 768px) {
+
+    /* Reducir padding en el contenedor principal */
+    .read-container {
+        padding: 15px;
+    }
+
+    /* Reducir tamaño del título */
+    .read-container h2 {
+        font-size: 1.5em;
+    }
+
+    /* Hacer que los controles de gráfico tomen una columna cada uno */
+    .chart-config {
+        grid-template-columns: 1fr;
+    }
+
+    /* Reducir tamaño de la tabla en móvil */
+    .data-table {
+        font-size: 0.85em;
+    }
+
+    /* Reducir padding en celdas de tabla */
+    .data-table th,
+    .data-table td {
+        padding: 10px;
+    }
+}
+
+/* ====================================
+   INDICADOR DE PROCESAMIENTO
+   ==================================== */
+
+/* Indicador de procesamiento */
+.processing-indicator {
+    margin-top: 10px;
+    color: #f39c12;
+    font-weight: 500;
+    animation: pulse 2s infinite;
+}
+
+/* Indicador de registros limitados */
+.table-note {
+    color: #666;
+    font-size: 0.9em;
+    font-weight: normal;
+    margin-left: 10px;
+}

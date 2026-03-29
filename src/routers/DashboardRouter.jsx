@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Navbar from '../components/ui/Navbar'
 import RegisterScreen from '../components/login/RegisterScreen'
 import Mapa from '../components/mapa/Mapa'
+import Read from '../components/read/Read'
 
 
 const DashboardRouter = () => {
@@ -14,6 +15,7 @@ const DashboardRouter = () => {
                     <Route path="/" element={<Mapa />} />
                     <Route path="/register" element={<RegisterScreen />} />
                     <Route path="/mapa" element={<Mapa />} />
+                    <Route path="/read" element={<Read />} />
                     {/* <Route path="/listmyrequest" element={<Listmyrequest />} /> */}
                 </Routes>
             </div>
