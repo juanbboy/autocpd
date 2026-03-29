@@ -98,8 +98,6 @@ const Read = () => {
         return [...new Set(fechas.filter(f => f))].sort()
     }, [data])
 
-
-
     // OPTIMIZACIÓN: Memoizar datos filtrados para evitar recálculos innecesarios
     const filtrados = useMemo(() => {
         if (!data.length) return []
@@ -784,93 +782,4 @@ const Read = () => {
 }
 
 
-
-
-// Exportar el componente para usarlo en otras partes de la aplicación
 export default Read
-
-//    {/* SECCIÓN 2: Si hay datos cargados, mostrar controles y visualización */}
-//             {data.length > 0 && (
-//                 <>
-//                     {/* SECCIÓN 2.1: Controles para configurar el gráfico */}
-//                     <div className="chart-config">
-//                         {/* Selector para columna del Eje X */}
-//                         <div className="config-group">
-//                             <label>Eje X (Categoría):</label>
-//                             <select
-//                                 value={selectedColumns.x}
-//                                 onChange={(e) => setSelectedColumns({ ...selectedColumns, x: e.target.value })}
-//                             >
-//                                 {/* Mostrar todas las columnas disponibles como opciones */}
-//                                 {columns.map(col => (
-//                                     <option key={col} value={col}>{col}</option>
-//                                 ))}
-//                             </select>
-//                         </div>
-
-//                         {/* Selector para columna del Eje Y */}
-//                         <div className="config-group">
-//                             <label>Eje Y (Valor):</label>
-//                             <select
-//                                 value={selectedColumns.y}
-//                                 onChange={(e) => setSelectedColumns({ ...selectedColumns, y: e.target.value })}
-//                             >
-//                                 {/* Mostrar todas las columnas disponibles como opciones */}
-//                                 {columns.map(col => (
-//                                     <option key={col} value={col}>{col}</option>
-//                                 ))}
-//                             </select>
-//                         </div>
-
-//                         {/* Selector para tipo de gráfico */}
-//                         <div className="config-group">
-//                             <label>Tipo de Gráfico:</label>
-//                             <select
-//                                 value={chartType}
-//                                 onChange={(e) => setChartType(e.target.value)}
-//                             >
-//                                 <option value="bar">📊 Barras</option>
-//                                 <option value="line">📈 Líneas</option>
-//                                 <option value="pie">🥧 Pastel</option>
-//                             </select>
-//                         </div>
-//                     </div>
-
-//                     {/* SECCIÓN 2.2: Mostrar el gráfico */}
-//                     <div className="chart-section">
-//                         <h3>Gráfico</h3>
-//                         {/* Llamar a la función renderChart para mostrar el gráfico seleccionado */}
-//                         {renderChart()}
-//                     </div>
-
-//                     {/* SECCIÓN 2.3: Tabla con todos los datos del archivo */}
-//                     <div className="table-section">
-//                         <h3>Datos del Archivo ({data.length} registros)</h3>
-//                         <div className="table-wrapper">
-//                             <table className="data-table">
-//                                 {/* Encabezado de la tabla con nombres de columnas */}
-//                                 <thead>
-//                                     <tr>
-//                                         {/* Mostrar cada columna como un encabezado */}
-//                                         {columns.map(col => (
-//                                             <th key={col}>{col}</th>
-//                                         ))}
-//                                     </tr>
-//                                 </thead>
-//                                 {/* Cuerpo de la tabla */}
-//                                 <tbody>
-//                                     {/* Iterar sobre cada fila de datos */}
-//                                     {data.map((row, idx) => (
-//                                         <tr key={idx}>
-//                                             {/* Para cada fila, mostrar el valor de cada columna */}
-//                                             {columns.map(col => (
-//                                                 <td key={`${idx}-${col}`}>{row[col]}</td>
-//                                             ))}
-//                                         </tr>
-//                                     ))}
-//                                 </tbody>
-//                             </table>
-//                         </div>
-//                     </div>
-//                 </>
-//             )}
