@@ -5,7 +5,8 @@ import * as echarts from 'echarts';
 
 
 const Read = () => {
-
+    const [data1, setData1] = useState([])
+    const [data2, setData2] = useState([])
     const [data, setData] = useState([])
     // Estado para almacenar los nombres de las columnas del archivo
     const [columns, setColumns] = useState([])
@@ -22,24 +23,29 @@ const Read = () => {
     // Estado para controlar indicadores de carga
     const [isProcessing, setIsProcessing] = useState(false)
     // Estado para guardar el nombre del archivo cargado
-    const [fileName, setFileName] = useState('')
-
+    const [fileName1, setFileName1] = useState('')
+    const [fileName2, setFileName2] = useState('')
     const [anio, setAnio] = useState([]);
     const [mes, setMes] = useState([]);
     const meses = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
     // Función que se ejecuta cuando el usuario selecciona un archivo
-    const handleFileUpload = (event) => {
+    const handleFileUpload = (event, fileNumber) => {
         // Obtener el primer archivo de los archivos seleccionados
         const file = event.target.files[0]
         // Si no hay archivo, salir de la función
         if (!file) return
         // Activar indicador de procesamiento
         setIsProcessing(true)
-        // Guardar el nombre del archivo en el estado
-        setFileName(file.name)
         // Crear una instancia de FileReader para leer el archivo
         const reader = new FileReader()
+        // 👇 Guardar nombre según archivo
+        if (fileNumber === 1) {
+            setFileName1(file.name)
+        } else {
+            setFileName2(file.name)
+        }
+
 
         // Ejecutar código cuando el archivo se haya cargado completamente
         reader.onload = (e) => {
@@ -52,7 +58,11 @@ const Read = () => {
                 const worksheet = workbook.Sheets[firstSheet]
                 // Convertir los datos de la hoja a formato JSON (array de objetos)
                 const jsonData = XLSX.utils.sheet_to_json(worksheet)
-
+                if (fileNumber === 1) {
+                    setData1(jsonData)
+                } else {
+                    setData2(jsonData)
+                }
                 // Si hay datos en el archivo
                 if (jsonData.length > 0) {
                     // Calcular columna de cumplimiento para cada fila
@@ -89,6 +99,8 @@ const Read = () => {
 
         // Leer el archivo en formato binario
         reader.readAsBinaryString(file)
+
+        console.log(data1, data2)
     }
 
     // OPTIMIZACIÓN: Memoizar opciones de años para evitar recálculos
@@ -545,24 +557,41 @@ const Read = () => {
 
             {/* SECCIÓN 1: Carga de archivo */}
             <div className="upload-section">
-                <label className="file-label">
-                    {/* Input tipo file (oculto visualmente) que acepta archivos Excel */}
+
+                {/* Archivo 1 */}
+                <label className="file-label p-2">
                     <input
                         type="file"
                         accept=".xlsx,.xls,.csv"
-                        onChange={handleFileUpload}
+                        onChange={(e) => handleFileUpload(e, 1)}
                         className="file-input"
                     />
-                    {/* Botón visible para seleccionar archivo */}
-                    <span className="file-button">📁 Seleccionar Archivo</span>
+                    <span className="file-button">📁 Archivo 1</span>
                 </label>
-                {/* Mostrar el nombre del archivo si ya se ha cargado */}
-                {fileName && <p className="file-name">✓ Archivo cargado: {fileName}</p>}
+
+                {fileName1 && (
+                    <p className="file-name">✓ Archivo 1: {fileName1}</p>
+                )}
+
+                {/* Archivo 2 */}
+                <label className="file-label p-2">
+                    <input
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                        onChange={(e) => handleFileUpload(e, 2)}
+                        className="file-input"
+                    />
+                    <span className="file-button">📁 Archivo 2</span>
+                </label>
+
+                {fileName2 && (
+                    <p className="file-name">✓ Archivo 2: {fileName2}</p>
+                )}
+
                 {colReferencia && <p className="file-name">📋 Agrupando por: {colReferencia}</p>}
                 {/* Indicador de procesamiento */}
                 {isProcessing && <p className="processing-indicator">⏳ Procesando archivo...</p>}
             </div>
-
 
 
 
