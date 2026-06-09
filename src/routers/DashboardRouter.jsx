@@ -3,7 +3,7 @@ import Navbar from '../components/ui/Navbar'
 import RegisterScreen from '../components/login/RegisterScreen'
 import Mapa from '../components/mapa/Mapa'
 import Read from '../components/read/Read'
-
+import Pruebas1 from '../components/pruebas/Pruebas1'
 
 const DashboardRouter = () => {
 
@@ -14,7 +14,7 @@ const DashboardRouter = () => {
                 <Routes>
                     <Route path="/" element={<Mapa />} />
                     <Route path="/register" element={<RegisterScreen />} />
-                    <Route path="/mapa" element={<Mapa />} />
+                    <Route path="/pruebas" element={<Pruebas1 />} />
                     <Route path="/read" element={<Read />} />
                     {/* <Route path="/listmyrequest" element={<Listmyrequest />} /> */}
                 </Routes>

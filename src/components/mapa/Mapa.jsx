@@ -1,10 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { set } from 'firebase/database';
 import useFirebaseSync from '../../hooks/useFirebaseSync';
+import useMachineTimers from '../../hooks/useMachineTimers';
+import { supabase } from '../pruebas/client';
 import { removeUndefined } from '../../utils/Utils';
 import cpd from '../../assets/cpdblanco.png';
 import './mapa.css';
 import { dbRef } from '../../firebase/firebase-config';
+import { mainOptions, mainLabels } from '../../config/mainOptionsConfig';
+import { secondaryOptionsMap } from '../../config/secondaryOptionsConfig';
+import { getImageBySrc } from '../../config/machineColorsConfig';
+import { getMachineReference, fetchReferencesFromSupabase } from '../../config/machineReferencesConfig';
+import MapaModal from './MapaModal';
+import MachineReferencesAdmin from '../admin/MachineReferencesAdmin';
 // import { requestNotificationPermissionAndToken } from '../../hooks/useToken';
 // import { useFCM }  from '../../hooks/useFcm';
 
@@ -15,12 +23,39 @@ const Mapa = () => {
   const isFirstLoad = useRef(true); // Para evitar sobrescribir al cargar por primera vez
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
   const [modal, setModal] = useState({ show: false, target: null, main: null });
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [refsLoaded, setRefsLoaded] = useState(false);
 
   // const { notification } = useFCM();
 
   useFirebaseSync(dbRef, setImgStates, ignoreNext, isFirstLoad);
-  // useFCM();
+  const timers = useMachineTimers(imgStates);
+
+  const getTimerLabel = (id) => {
+    const timer = timers[id];
+    if (!timer) return null;
+    return (
+      <div style={{ fontSize: 12, color: '#555', marginTop: 2 }}>
+        ⏱ {timer}
+      </div>
+    );
+  };
+
+  // const activeTimers = Object.entries(imgStates || {})
+  //   .filter(([, state]) => state && state.main !== 4 && state.startedAt)
+  //   .sort(([idA], [idB]) => idA.localeCompare(idB));
+
   useEffect(() => {
+    // Sync references from Supabase once on mount to keep refs consistent across devices
+    (async () => {
+      try {
+        const refs = await fetchReferencesFromSupabase();
+        if (refs) setRefsLoaded(true);
+      } catch (e) {
+        console.error('Error syncing references from Supabase:', e);
+      }
+    })();
+
     // Sube los cambios locales a Firebase (evita subir si el cambio viene de Firebase)
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
@@ -38,40 +73,20 @@ const Mapa = () => {
     set(dbRef, cleanImgStates);
   }, [imgStates]);
 
-  // Opciones principales (colores y etiquetas)
-  const mainOptions = [
-    { label: "Mecánico", main: 1, className: "btn btn-danger" },
-    { label: "Barrado", main: 2, className: "btn btn-dark" },
-    { label: "Electrónico", main: 3, className: "btn btn-warning" },
-    { label: "Tallaje", main: 6, className: "btn btn-primary" },
-    { label: "Seguimiento", main: 5, className: "btn btn-success" },
-    { label: "Producción", main: 4, className: "btn btn-light" }
-  ];
 
-  // Opciones secundarias (subopciones por cada tipo principal)
-  const secondaryOptionsMap = React.useMemo(() => ({
-    1: [
-      "Transferencia", "Vanizado", "Reviente LC", "Succion", "Reviente L180", "Piques",
-      "Huecos y rotos", "Aguja", "Selectores", "Motores MPP", "Cuchillas", "correa", "Manguera rota", "Lubricacion", "Guia hilos", "Otros", "Limpieza", "Trasdenuto", "Escaricato"
-    ],
-    2: [
-      "Licra", "Nylon", "Motores", "Sin programa"
-    ],
-    3: [
-      "Valvulas", "Motores MPP", "No enciende", "Turbina", "Motor principal", "Sensores",
-      "Paros", "Sin programa", "Fusible", "Guia hilos", "Corto circuito", "Carga no conectada", "bloqueo", "Sensor Lubricacion", "Otros", "Motor LGL", "Trasdenuto", "Escaricato"
-    ],
-    4: [],
-    5: [
-      "Transferencia", "Vanizado", "Reviente LC", "Succion", "Reviente L180", "Piques",
-      "Huecos y rotos", "Aguja", "Selectores", "Motores MPP", "Cuchillas",
-      "Valvulas", "Motores MPP", "No enciende", "Turbina", "Motor principal", "Sensores",
-      "Paros", "Sin programa", "Fusible", "Materia prima", "Motores", "Sensor Lubricacion", "Lubricacion", "Guia hilos", "Otros", "Motor LGL", "Limpieza", "Trasdenuto", "Escaricato"
-    ],
-    6: [
-      "Cambio de talla", "Cambio de referencia", "Desprogramada"
-    ]
-  }), []);
+
+  function getSecondaryText(main, secondary, secondaryCustom) {
+    if (main == null || secondary == null) return null;
+    const opts = secondaryOptionsMap[main] || [];
+    const label = opts[secondary];
+    if (!label) return null;
+    if (label === "Otros") {
+      return secondaryCustom ? secondaryCustom : label;
+    }
+    return label;
+  }
+
+
 
   // Abre el modal de opciones para una máquina
   function img(event) {
@@ -98,33 +113,57 @@ const Mapa = () => {
   function getSrc(id) {
     const val = imgStates[id];
     if (!val || val.main == null) return cpd;
-    switch (val.main) {
-      case 1: return require('../../assets/cpdrojo.png');
-      case 2: return require('../../assets/cpdnegro.png');
-      case 3: return require('../../assets/cpdamarillo.png');
-      case 4: return require('../../assets/cpdblanco.png');
-      case 5: return require('../../assets/cpdverde.png');
-      case 6: return require('../../assets/cpdazul.png');
-      default: return cpd;
-    }
+    return getImageBySrc(val.main, cpd);
   }
-  // Devuelve las subopciones para el modal actual
+
   function getSecondaryOptions() {
-    if (modal.main === 4) return [];
-    if (modal.main && secondaryOptionsMap[modal.main]) {
-      return secondaryOptionsMap[modal.main];
-    }
-    return [];
+    if (modal.main === 4 || modal.main === 7) return [];
+    return secondaryOptionsMap[modal.main] || [];
   }
+
+  const closeModal = () => setModal({ show: false, target: null, main: null });
+  const backToMainModal = () => setModal(prev => ({ ...prev, main: null, show: true }));
+
   // Maneja la selección de una opción principal en el modal
   function handleMainOption(main) {
-    if (main === 4 && modal.target) {
+    if ((main === 4 || main === 7) && modal.target) {
       const id = modal.target.getAttribute('data-id');
       let src = getSrc(id);
-      setImgStates(prev => ({
-        ...prev,
-        [id]: { src, secondary: null, main }
-      }));
+      // Prepare insertion data before updating state
+      setImgStates(prev => {
+        const prevState = prev[id] || {};
+        const now = Date.now();
+        const elapsedSeconds = prevState.startedAt ? Math.round((now - prevState.startedAt) / 1000) : prevState.lastElapsedSeconds || 0;
+
+        // Insert a record into Supabase for this machine stop
+        (async () => {
+          try {
+            await supabase.from('historial_estados').insert([{
+              maquina_id: id,
+              estadoprincipal: mainLabels[prevState.main] ?? null,
+              causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
+              causa_custom: prevState.secondaryCustom ?? null,
+              start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
+              end_at: new Date(now).toISOString(),
+              elapsed_seconds: elapsedSeconds
+            }]);
+          } catch (e) {
+            console.error('Supabase insert error', e);
+          }
+        })();
+
+        return {
+          ...prev,
+          [id]: {
+            src,
+            secondary: null,
+            main,
+            productionAt: now,
+            startedAt: undefined,
+            lastElapsedSeconds: elapsedSeconds
+          }
+        };
+      });
       // fcmSendNotification(
       //   `Máquina ${id}`,
       //   `Producción`,
@@ -140,15 +179,22 @@ const Mapa = () => {
     if (!modal.target || !modal.main) return;
     const id = modal.target.getAttribute('data-id');
     let src = getSrc(id);
-    setImgStates(prev => ({
-      ...prev,
-      [id]: {
-        src,
-        secondary: secondaryIdx,
-        main: modal.main,
-        secondaryCustom: (secondaryIdx !== undefined && getSecondaryOptions()[secondaryIdx] === "Otros") ? customText : undefined
-      }
-    }));
+    const now = Date.now();
+    setImgStates(prev => {
+      const prevState = prev[id] || {};
+      return {
+        ...prev,
+        [id]: {
+          src,
+          secondary: secondaryIdx,
+          main: modal.main,
+          secondaryCustom: (secondaryIdx !== undefined && getSecondaryOptions()[secondaryIdx] === "Otros") ? customText : undefined,
+          startedAt: prevState.startedAt || now,
+          productionAt: undefined,
+          lastElapsedSeconds: prevState.lastElapsedSeconds
+        }
+      };
+    });
     // const mainLabels = {
     //   1: "Mecánico",
     //   2: "Barrado",
@@ -210,6 +256,9 @@ const Mapa = () => {
               <div>
                 <strong>{id}</strong>
               </div>
+              <div style={{ fontSize: 11, color: "#666", marginBottom: 4 }}>
+                {getMachineReference(id)}
+              </div>
               <div style={{
                 fontSize: 13,
                 color: "#888",
@@ -226,6 +275,7 @@ const Mapa = () => {
               }}>
                 {getSecondaryLabel(id) || "\u00A0"}
               </div>
+              {getTimerLabel(id)}
             </div>
           ))}
         </div>
@@ -239,9 +289,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S19</strong>
+              {getMachineReference("S19") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S19")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S19") || "\u00A0"}
               </div>
+              {getTimerLabel("S19")}
             </div>
           </div>
           <div className="col p-0 ">
@@ -250,9 +306,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S3</strong>
+              {getMachineReference("S3") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S3")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S3") || "\u00A0"}
               </div>
+              {getTimerLabel("S3")}
             </div>
           </div>
           <div className="col p-0">
@@ -261,9 +323,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S2</strong>
+              {getMachineReference("S2") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S2")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S2") || "\u00A0"}
               </div>
+              {getTimerLabel("S2")}
             </div>
           </div>
           <div className="col p-0 ">
@@ -272,9 +340,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S1</strong>
+              {getMachineReference("S1") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S1")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S1") || "\u00A0"}
               </div>
+              {getTimerLabel("S1")}
             </div>
           </div>
           <div className="col p-0">
@@ -283,9 +357,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S6</strong>
+              {getMachineReference("S6") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S6")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S6") || "\u00A0"}
               </div>
+              {getTimerLabel("S6")}
             </div>
           </div>
           <div className="col  p-0">
@@ -293,9 +373,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S7</strong>
+              {getMachineReference("S7") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S7")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S7") || "\u00A0"}
               </div>
+              {getTimerLabel("S7")}
             </div>
           </div>
           <div className="col p-0">
@@ -304,9 +390,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S8</strong>
+              {getMachineReference("S8") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S8")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S8") || "\u00A0"}
               </div>
+              {getTimerLabel("S8")}
             </div>
           </div>
           <div className="col p-0 ">
@@ -315,9 +407,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S9</strong>
+              {getMachineReference("S9") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S9")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S9") || "\u00A0"}
               </div>
+              {getTimerLabel("S9")}
             </div>
           </div>
           <div className="col p-0 ">
@@ -326,9 +424,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S10</strong>
+              {getMachineReference("S10") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S10")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S10") || "\u00A0"}
               </div>
+              {getTimerLabel("S10")}
             </div>
           </div>
           <div className="col p-0 ">
@@ -337,9 +441,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S11</strong>
+              {getMachineReference("S11") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S11")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S11") || "\u00A0"}
               </div>
+              {getTimerLabel("S11")}
             </div>
           </div>
           <div className="col p-0 ">
@@ -348,9 +458,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S12</strong>
+              {getMachineReference("S12") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S12")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S12") || "\u00A0"}
               </div>
+              {getTimerLabel("S12")}
             </div>
           </div>
           <div className="col p-0">
@@ -359,9 +475,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S13</strong>
+              {getMachineReference("S13") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S13")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S13") || "\u00A0"}
               </div>
+              {getTimerLabel("S13")}
             </div>
           </div>
           <div className="col p-0">
@@ -370,9 +492,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S14</strong>
+              {getMachineReference("S14") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S14")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S14") || "\u00A0"}
               </div>
+              {getTimerLabel("S14")}
             </div>
           </div>
           <div className="col p-0">
@@ -381,9 +509,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S15</strong>
+              {getMachineReference("S15") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S15")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("S15") || "\u00A0"}
               </div>
+              {getTimerLabel("S15")}
             </div>
           </div>
 
@@ -396,7 +530,13 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S18</strong>
+              {getMachineReference("S18") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S18")}
+                </div>
+              )}
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S18")}</div>
+              {getTimerLabel("S18")}
             </div>
           </div>
           <div className="col p-0 " >
@@ -405,7 +545,13 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S17</strong>
+              {getMachineReference("S17") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S17")}
+                </div>
+              )}
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S17")}</div>
+              {getTimerLabel("S17")}
             </div>
           </div>
           <div className="col p-0 " >
@@ -414,7 +560,13 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S16</strong>
+              {getMachineReference("S16") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S16")}
+                </div>
+              )}
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S16")}</div>
+              {getTimerLabel("S16")}
             </div>
           </div>
           <div className="col p-0 " >
@@ -422,7 +574,13 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S4</strong>
+              {getMachineReference("S4") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S4")}
+                </div>
+              )}
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S4")}</div>
+              {getTimerLabel("S4")}
             </div>
           </div>
           <div className="col p-0">
@@ -431,7 +589,13 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S5</strong>
+              {getMachineReference("S5") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S5")}
+                </div>
+              )}
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S5")}</div>
+              {getTimerLabel("S5")}
             </div>
           </div>
 
@@ -443,9 +607,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>67</strong>
+                  {getMachineReference("67") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("67")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("67") || "\u00A0"}
                   </div>
+                  {getTimerLabel("67")}
                 </div>
               </div>
             </div>
@@ -456,9 +626,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>66</strong>
+                  {getMachineReference("66") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("66")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("66") || "\u00A0"}
                   </div>
+                  {getTimerLabel("66")}
                 </div>
               </div>
             </div>
@@ -471,9 +647,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>26</strong>
+                  {getMachineReference("26") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("26")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("26") || "\u00A0"}
                   </div>
+                  {getTimerLabel("26")}
                 </div>
               </div>
             </div>
@@ -484,9 +666,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>49</strong>
+                  {getMachineReference("49") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("49")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("49") || "\u00A0"}
                   </div>
+                  {getTimerLabel("49")}
                 </div>
               </div>
             </div>
@@ -499,9 +687,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>28</strong>
+                  {getMachineReference("28") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("28")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("28") || "\u00A0"}
                   </div>
+                  {getTimerLabel("28")}
                 </div>
               </div>
             </div>
@@ -512,9 +706,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>55</strong>
+                  {getMachineReference("55") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("55")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("55") || "\u00A0"}
                   </div>
+                  {getTimerLabel("55")}
                 </div>
               </div>
             </div>
@@ -527,9 +727,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>30</strong>
+                  {getMachineReference("30") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("30")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("30") || "\u00A0"}
                   </div>
+                  {getTimerLabel("30")}
                 </div>
               </div>
             </div>
@@ -540,9 +746,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>58</strong>
+                  {getMachineReference("58") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("58")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("58") || "\u00A0"}
                   </div>
+                  {getTimerLabel("58")}
                 </div>
               </div>
             </div>
@@ -555,9 +767,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>31</strong>
+                  {getMachineReference("31") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("31")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("31") || "\u00A0"}
                   </div>
+                  {getTimerLabel("31")}
                 </div>
               </div>
             </div>
@@ -568,9 +786,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>57</strong>
+                  {getMachineReference("57") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("57")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("57") || "\u00A0"}
                   </div>
+                  {getTimerLabel("57")}
                 </div>
               </div>
             </div>
@@ -583,9 +807,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>32</strong>
+                  {getMachineReference("32") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("32")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("32") || "\u00A0"}
                   </div>
+                  {getTimerLabel("32")}
                 </div>
               </div>
             </div>
@@ -596,9 +826,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>56</strong>
+                  {getMachineReference("56") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("56")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("56") || "\u00A0"}
                   </div>
+                  {getTimerLabel("56")}
                 </div>
               </div>
             </div>
@@ -611,9 +847,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>33</strong>
+                  {getMachineReference("33") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("33")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("33") || "\u00A0"}
                   </div>
+                  {getTimerLabel("33")}
                 </div>
               </div>
             </div>
@@ -624,9 +866,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>54</strong>
+                  {getMachineReference("54") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("54")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("54") || "\u00A0"}
                   </div>
+                  {getTimerLabel("54")}
                 </div>
               </div>
             </div>
@@ -639,9 +887,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>35</strong>
+                  {getMachineReference("35") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("35")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("35") || "\u00A0"}
                   </div>
+                  {getTimerLabel("35")}
                 </div>
               </div>
             </div>
@@ -652,9 +906,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>52</strong>
+                  {getMachineReference("52") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("52")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("52") || "\u00A0"}
                   </div>
+                  {getTimerLabel("52")}
                 </div>
               </div>
             </div>
@@ -667,9 +927,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>36</strong>
+                  {getMachineReference("36") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("36")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("36") || "\u00A0"}
                   </div>
+                  {getTimerLabel("36")}
                 </div>
               </div>
             </div>
@@ -680,9 +946,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>51</strong>
+                  {getMachineReference("51") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("51")}
+                    </div>
+                  )}
                   <div className='mq'>
                     {getSecondaryLabel("51") || "\u00A0"}
                   </div>
+                  {getTimerLabel("51")}
                 </div>
               </div>
             </div>
@@ -695,9 +967,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>38</strong>
+                  {getMachineReference("38") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("38")}
+                    </div>
+                  )}
                   <div className='mq'>
                     {getSecondaryLabel("38") || "\u00A0"}
                   </div>
+                  {getTimerLabel("38")}
                 </div>
               </div>
             </div>
@@ -708,9 +986,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>50</strong>
+                  {getMachineReference("50") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("50")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("50") || "\u00A0"}
                   </div>
+                  {getTimerLabel("50")}
                 </div>
               </div>
             </div>
@@ -723,9 +1007,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>39</strong>
+                  {getMachineReference("39") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("39")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("39") || "\u00A0"}
                   </div>
+                  {getTimerLabel("39")}
                 </div>
               </div>
             </div>
@@ -736,9 +1026,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>44</strong>
+                  {getMachineReference("44") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("44")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("44") || "\u00A0"}
                   </div>
+                  {getTimerLabel("44")}
                 </div>
               </div>
             </div>
@@ -751,9 +1047,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>40</strong>
+                  {getMachineReference("40") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("40")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("40") || "\u00A0"}
                   </div>
+                  {getTimerLabel("40")}
                 </div>
               </div>
             </div>
@@ -764,9 +1066,15 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>43</strong>
+                  {getMachineReference("43") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("43")}
+                    </div>
+                  )}
                   <div className="mq">
                     {getSecondaryLabel("43") || "\u00A0"}
                   </div>
+                  {getTimerLabel("43")}
                 </div>
               </div>
             </div>
@@ -781,9 +1089,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>64</strong>
+              {getMachineReference("64") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("64")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("64") || "\u00A0"}
               </div>
+              {getTimerLabel("64")}
             </div>
           </div>
           <div className="col ">
@@ -792,9 +1106,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>65</strong>
+              {getMachineReference("65") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("65")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("65") || "\u00A0"}
               </div>
+              {getTimerLabel("65")}
             </div>
           </div>
           <div className="col ">
@@ -803,9 +1123,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>45</strong>
+              {getMachineReference("45") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("45")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("45") || "\u00A0"}
               </div>
+              {getTimerLabel("45")}
             </div>
           </div>
           <div className="col ">
@@ -814,9 +1140,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>46</strong>
+              {getMachineReference("46") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("46")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("46") || "\u00A0"}
               </div>
+              {getTimerLabel("46")}
             </div>
           </div>
           <div className="col ">
@@ -825,9 +1157,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>47</strong>
+              {getMachineReference("47") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("47")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("47") || "\u00A0"}
               </div>
+              {getTimerLabel("47")}
             </div>
           </div>
           <div className="col ">
@@ -836,9 +1174,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>48</strong>
+              {getMachineReference("48") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("48")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("48") || "\u00A0"}
               </div>
+              {getTimerLabel("48")}
             </div>
           </div>
           <div className="col ">
@@ -847,9 +1191,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>69</strong>
+              {getMachineReference("69") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("69")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("69") || "\u00A0"}
               </div>
+              {getTimerLabel("69")}
             </div>
           </div>
           <div className="col ">
@@ -858,9 +1208,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>70</strong>
+              {getMachineReference("70") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("70")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("70") || "\u00A0"}
               </div>
+              {getTimerLabel("70")}
             </div>
           </div>
           <div className="col ">
@@ -869,9 +1225,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>71</strong>
+              {getMachineReference("71") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("71")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("71") || "\u00A0"}
               </div>
+              {getTimerLabel("71")}
             </div>
           </div>
           <div className="col ">
@@ -880,9 +1242,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>72</strong>
+              {getMachineReference("72") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("72")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("72") || "\u00A0"}
               </div>
+              {getTimerLabel("72")}
             </div>
           </div>
           <div className="col ">
@@ -891,9 +1259,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>73</strong>
+              {getMachineReference("73") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("73")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("73") || "\u00A0"}
               </div>
+              {getTimerLabel("73")}
             </div>
           </div>
           <div className="col ">
@@ -902,9 +1276,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>74</strong>
+              {getMachineReference("74") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("74")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("74") || "\u00A0"}
               </div>
+              {getTimerLabel("74")}
             </div>
           </div>
           <div className="col ">
@@ -913,9 +1293,15 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>75</strong>
+              {getMachineReference("75") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("75")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("75") || "\u00A0"}
               </div>
+              {getTimerLabel("75")}
             </div>
           </div>
           <div className="col ">
@@ -923,9 +1309,15 @@ const Mapa = () => {
             <input type="image" onClick={img} src={getSrc("76")} width={60} alt="Placeholder" data-id="76" className='borde' />
             <div>
               <strong>76</strong>
+              {getMachineReference("76") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("76")}
+                </div>
+              )}
               <div className="mq">
                 {getSecondaryLabel("76") || "\u00A0"}
               </div>
+              {getTimerLabel("76")}
             </div>
           </div>
         </div>
@@ -951,6 +1343,11 @@ const Mapa = () => {
         )
         } */}
         <div className="col-auto">
+          <button className="m-1 btn btn-info" onClick={() => setShowAdminModal(true)}>
+            ⚙ Gestionar Referencias
+          </button>
+        </div>
+        <div className="col-auto">
           {/* <button className="m-1 btn btn-primary " onClick={handleShowObservaciones}>
             Observaciones Proceso
           </button> */}
@@ -958,115 +1355,22 @@ const Mapa = () => {
       </div>
 
       {/* Modal de opciones principales de maquinas */}
-      {
-        modal.show && (
-          <div style={{
-            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-            background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
-          }}>
-            <div
-              style={{
-                background: 'white',
-                padding: 24,
-                borderRadius: 8,
-                minWidth: 250,
-                textAlign: 'center',
-                maxHeight: '90vh',
-                overflowY: 'auto'
-              }}
-            >
-              {!modal.main ? (
-                <div>
-                  <div className="mb-3" style={{ fontSize: 24 }}>¿Escoge opción requerida?</div>
-                  {/* Mostrar subopción elegida anteriormente si existe */}
-                  {(() => {
-                    let id = modal.target && modal.target.getAttribute('data-id');
-                    let val = id && imgStates[id];
-                    let secondaryIdx = null;
-                    let mainIdx = 1;
-                    if (val && typeof val === "object" && val.secondary != null) {
-                      secondaryIdx = val.secondary;
-                      mainIdx = val.main || 1;
-                    }
-                    if (secondaryIdx != null) {
-                      const opts = secondaryOptionsMap[mainIdx] || [];
-                      return (
-                        <div style={{ marginBottom: 16, fontSize: 22, color: '#007bff' }}>
-                          Maquina en revision por: <b>{opts[secondaryIdx]}</b>
-                        </div>
-                      );
-                    }
-                    return (
-                      <div style={{ marginBottom: 16, fontSize: 22, color: '#888' }}>
-                        En Producción
-                      </div>
-                    );
-                  })()}
-                  {mainOptions.map(opt => (
-                    <button
-                      key={opt.main}
-                      className={opt.className + " m-2"}
-                      style={{ fontSize: 28, padding: '16px 32px', ...(opt.style || {}) }}
-                      onClick={() => handleMainOption(opt.main)}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                  <div>
-                    <button className="btn btn-link mt-3" style={{ fontSize: 20 }} onClick={() => setModal({ show: false, target: null, main: null })}>Cancelar</button>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  {/* Si es Produccion, no mostrar subopciones ni botones */}
-                  {modal.main === 4 ? (
-                    <div className="mb-3" style={{ fontSize: 22, color: "#888" }}>
-                      En Producción.
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="mb-3" style={{ fontSize: 24 }}>Seleccione una causa</div>
-                      {getSecondaryOptions().map((label, idx) => (
-                        label === "Otros" ? (
-                          <button key={label}
-                            className="btn btn-outline-secondary m-2"
-                            style={{ fontSize: 24, padding: '12px 24px' }}
-                            onClick={() => {
-                              // Mostrar input para texto personalizado
-                              const custom = window.prompt("Escribe la causa personalizada:");
-                              if (custom && custom.trim().length > 0) {
-                                handleSecondaryOption(idx, custom.trim());
-                              }
-                            }}
-                          >
-                            Otros
-                          </button>
+      <MapaModal
+        modal={modal}
+        imgStates={imgStates}
+        mainOptions={mainOptions}
+        secondaryOptionsMap={secondaryOptionsMap}
+        handleMainOption={handleMainOption}
+        handleSecondaryOption={handleSecondaryOption}
+        onClose={closeModal}
+        onBack={backToMainModal}
+      />
 
-                        ) : (
-                          <button
-                            key={label}
-                            className="btn btn-outline-secondary m-2"
-                            style={{ fontSize: 24, padding: '12px 24px' }}
-                            onClick={() => handleSecondaryOption(idx)}
-                          >
-                            {label}
-                          </button>
-                        )
-                      ))}
-                    </div>
-                  )}
-                  <div>
-                    <button className="btn btn-link mt-3" style={{ fontSize: 20 }} onClick={() => setModal({ show: false, target: null, main: null })}>Cancelar</button>
-                    {modal.main !== 4 && (
-                      <button className="btn btn-link mt-3" style={{ fontSize: 20 }} onClick={() => setModal({ show: true, target: modal.target, main: null })}>Volver</button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      }
+      {/* Modal de administración de referencias de máquinas */}
+      <MachineReferencesAdmin
+        isOpen={showAdminModal}
+        onClose={() => setShowAdminModal(false)}
+      />
 
       {/* --- Modal para mostrar observaciones generales de los snapshots --- */}
       {/* {
