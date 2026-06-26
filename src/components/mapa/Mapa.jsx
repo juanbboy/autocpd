@@ -158,9 +158,7 @@ const Mapa = () => {
             src,
             secondary: null,
             main,
-            productionAt: now,
-            startedAt: undefined,
-            lastElapsedSeconds: elapsedSeconds
+            reference: getMachineReference(id),
           }
         };
       });
