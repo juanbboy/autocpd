@@ -13,6 +13,7 @@ import { getImageBySrc } from '../../config/machineColorsConfig';
 import { getMachineReference, fetchReferencesFromSupabase } from '../../config/machineReferencesConfig';
 import MapaModal from './MapaModal';
 import MachineReferencesAdmin from '../admin/MachineReferencesAdmin';
+//import { preParseFinder } from 'echarts/types/src/util/model.js';
 // import { requestNotificationPermissionAndToken } from '../../hooks/useToken';
 // import { useFCM }  from '../../hooks/useFcm';
 
@@ -25,6 +26,8 @@ const Mapa = () => {
   const [modal, setModal] = useState({ show: false, target: null, main: null });
   const [showAdminModal, setShowAdminModal] = useState(false);
   //const [refsLoaded, setRefsLoaded] = useState(false);
+
+
 
   // const { notification } = useFCM();
 
@@ -145,7 +148,9 @@ const Mapa = () => {
               causa_custom: prevState.secondaryCustom ?? null,
               start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
               end_at: new Date(now).toISOString(),
-              elapsed_seconds: elapsedSeconds
+              elapsed_seconds: elapsedSeconds,
+              operador: modal.operador ?? null
+
             }]);
           } catch (e) {
             console.error('Supabase insert error', e);
@@ -1362,6 +1367,9 @@ const Mapa = () => {
         handleSecondaryOption={handleSecondaryOption}
         onClose={closeModal}
         onBack={backToMainModal}
+        setModal={setModal}
+
+
       />
 
       {/* Modal de administración de referencias de máquinas */}
