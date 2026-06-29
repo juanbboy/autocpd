@@ -24,7 +24,7 @@ const Mapa = () => {
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
   const [modal, setModal] = useState({ show: false, target: null, main: null });
   const [showAdminModal, setShowAdminModal] = useState(false);
-  const [refsLoaded, setRefsLoaded] = useState(false);
+  //const [refsLoaded, setRefsLoaded] = useState(false);
 
   // const { notification } = useFCM();
 
@@ -50,7 +50,7 @@ const Mapa = () => {
     (async () => {
       try {
         const refs = await fetchReferencesFromSupabase();
-        if (refs) setRefsLoaded(true);
+        if (refs);
       } catch (e) {
         console.error('Error syncing references from Supabase:', e);
       }
