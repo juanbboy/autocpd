@@ -10,14 +10,21 @@ const MapaModal = ({
     onClose,
     onBack,
     setModal,
-    // 1. Agregamos una lista de operarios por defecto (puedes modificar estos nombres)
     listaOperarios = ["632", "609", "606", "636", "637", "615", "603", "624", "602"]
 }) => {
-
     if (!modal.show) return null;
 
+    // 1. Identificamos el estado ACTUAL de la máquina
     const currentId = modal.target?.getAttribute('data-id');
     const currentVal = currentId ? imgStates[currentId] : null;
+
+    // Extraemos el "main" actual de la máquina (si no tiene, asumimos un valor por defecto o null)
+    const estadoActualMaquina = currentVal && typeof currentVal === 'object' ? currentVal.main : null;
+
+    // 2. Evaluamos la regla de negocio: ¿Debe pedir operador obligatoriamente?
+    // Si la máquina NO está en estado 4 y tampoco en estado 7, NO debe pedir operador.
+    // Por el contrario, si está en 4, en 7, o es una máquina nueva (null), sí lo pide.
+    const requiereOperador = estadoActualMaquina === 4 || estadoActualMaquina === 7 || estadoActualMaquina === null;
 
     const getSecondaryOptions = () => {
         if (modal.main === 4 || modal.main === 7) return [];
@@ -27,65 +34,40 @@ const MapaModal = ({
         return [];
     };
 
-    // 2. Al hacer clic sobre el botón de un operario, se guarda directamente en el estado del modal
     const handleSeleccionarOperador = (nombre) => {
         setModal(prev => ({ ...prev, operador: nombre }));
     };
 
     return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-            background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
-        }}>
-            <div
-                style={{
-                    background: 'white',
-                    padding: 24,
-                    borderRadius: 8,
-                    minWidth: 320,
-                    textAlign: 'center',
-                    maxHeight: '90vh',
-                    overflowY: 'auto'
-                }}
-            >
-                {/* VISTA 0: SELECCIÓN DE OPERARIO POR BOTONES */}
-                {!modal.operador ? (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+            <div style={{ background: 'white', padding: 24, borderRadius: 8, minWidth: 320, textAlign: 'center', maxHeight: '90vh', overflowY: 'auto' }}>
+
+                {/* CONDICIONAL: SI REQUIERE OPERADOR Y AÚN NO SE HA SELECCIONADO, MUESTRA LA LISTA */}
+                {requiereOperador && !modal.operador ? (
                     <div>
                         <div className="mb-3" style={{ fontSize: 24, fontWeight: 'bold' }}>¿Quién realiza el reporte?</div>
                         <p style={{ color: '#666', fontSize: 16 }}>Selecciona tu nombre de la lista:</p>
-
-                        {/* 3. Mapeamos la lista de operarios creando botones idénticos a los principales */}
                         <div className="d-flex flex-wrap justify-content-center my-3">
                             {listaOperarios.map((nombre) => (
-                                <button
-                                    key={nombre}
-                                    type="button"
-                                    className="btn btn-outline-primary m-2"
-                                    style={{ fontSize: 28, padding: '16px 32px', fontWeight: '500' }}
-                                    onClick={() => handleSeleccionarOperador(nombre)}
-                                >
+                                <button key={nombre} type="button" className="btn btn-outline-primary m-2" style={{ fontSize: 28, padding: '16px 32px', fontWeight: '500' }} onClick={() => handleSeleccionarOperador(nombre)}>
                                     {nombre}
                                 </button>
                             ))}
                         </div>
-
                         <div>
-                            <button
-                                type="button"
-                                className="btn btn-link mt-2"
-                                style={{ fontSize: 20 }}
-                                onClick={onClose}
-                            >
+                            <button type="button" className="btn btn-link mt-2" style={{ fontSize: 20 }} onClick={onClose}>
                                 Cancelar
                             </button>
                         </div>
                     </div>
                 ) : (
-                    /* VISTAS DE SELECCIÓN TRADICIONALES */
+                    /* SI LA MÁQUINA YA ESTABA EN OTRO ESTADO (DIFERENTE A 4 O 7), PASA DIRECTO AQUÍ */
                     <div>
-                        <div style={{ fontSize: 14, color: '#28a745', marginBottom: 15, background: '#e8f5e9', padding: '4px 8px', borderRadius: 4, display: 'inline-block' }}>
-                            👤 Operario: <b>{modal.operador}</b>
-                        </div>
+                        {modal.operador && (
+                            <div style={{ fontSize: 14, color: '#28a745', marginBottom: 15, background: '#e8f5e9', padding: '4px 8px', borderRadius: 4, display: 'inline-block' }}>
+                                👤 Operario: <b>{modal.operador}</b>
+                            </div>
+                        )}
 
                         {!modal.main ? (
                             /* VISTA 1: BOTONES DEL ESTADO PRINCIPAL */
@@ -106,20 +88,11 @@ const MapaModal = ({
                                             </div>
                                         );
                                     }
-                                    return (
-                                        <div style={{ marginBottom: 16, fontSize: 22, color: '#888' }}>
-                                            En Producción
-                                        </div>
-                                    );
+                                    return <div style={{ marginBottom: 16, fontSize: 22, color: '#888' }}>En Producción</div>;
                                 })()}
 
                                 {mainOptions.map(opt => (
-                                    <button
-                                        key={opt.main}
-                                        className={opt.className + ' m-2'}
-                                        style={{ fontSize: 28, padding: '16px 32px', ...(opt.style || {}) }}
-                                        onClick={() => handleMainOption(opt.main, modal.operador)}
-                                    >
+                                    <button key={opt.main} className={opt.className + ' m-2'} style={{ fontSize: 28, padding: '16px 32px', ...(opt.style || {}) }} onClick={() => handleMainOption(opt.main, modal.operador)}>
                                         {opt.label}
                                     </button>
                                 ))}
@@ -131,35 +104,22 @@ const MapaModal = ({
                             /* VISTA 2: BOTONES DE CAUSAS SECUNDARIAS */
                             <div>
                                 {modal.main === 4 ? (
-                                    <div className="mb-3" style={{ fontSize: 22, color: '#888' }}>
-                                        En Producción.
-                                    </div>
+                                    <div className="mb-3" style={{ fontSize: 22, color: '#888' }}>En Producción.</div>
                                 ) : (
                                     <div>
                                         <div className="mb-3" style={{ fontSize: 24 }}>Seleccione una causa</div>
-
                                         {getSecondaryOptions().map((label, idx) => (
                                             label === 'Otros' ? (
-                                                <button
-                                                    key={label}
-                                                    className="btn btn-outline-secondary m-2"
-                                                    style={{ fontSize: 28, padding: '16px 32px' }}
-                                                    onClick={() => {
-                                                        const custom = window.prompt('Escribe la causa personalizada:');
-                                                        if (custom && custom.trim().length > 0) {
-                                                            handleSecondaryOption(idx, custom.trim(), modal.operador);
-                                                        }
-                                                    }}
-                                                >
+                                                <button key={label} className="btn btn-outline-secondary m-2" style={{ fontSize: 28, padding: '16px 32px' }} onClick={() => {
+                                                    const custom = window.prompt('Escribe la causa personalizada:');
+                                                    if (custom && custom.trim().length > 0) {
+                                                        handleSecondaryOption(idx, custom.trim(), modal.operador);
+                                                    }
+                                                }}>
                                                     Otros
                                                 </button>
                                             ) : (
-                                                <button
-                                                    key={label}
-                                                    className="btn btn-outline-secondary m-2"
-                                                    style={{ fontSize: 28, padding: '16px 32px' }}
-                                                    onClick={() => handleSecondaryOption(idx, undefined, modal.operador)}
-                                                >
+                                                <button key={label} className="btn btn-outline-secondary m-2" style={{ fontSize: 28, padding: '16px 32px' }} onClick={() => handleSecondaryOption(idx, undefined, modal.operador)}>
                                                     {label}
                                                 </button>
                                             )

@@ -149,7 +149,7 @@ const Mapa = () => {
               start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
               end_at: new Date(now).toISOString(),
               elapsed_seconds: elapsedSeconds,
-              operador: modal.operador ?? null
+              operador: prevState.operador ?? null
 
             }]);
           } catch (e) {
@@ -163,9 +163,8 @@ const Mapa = () => {
             src,
             secondary: null,
             main,
-            reference: getMachineReference(id),
           }
-        };
+        }
       });
       // fcmSendNotification(
       //   `Máquina ${id}`,
@@ -193,8 +192,10 @@ const Mapa = () => {
           main: modal.main,
           secondaryCustom: (secondaryIdx !== undefined && getSecondaryOptions()[secondaryIdx] === "Otros") ? customText : undefined,
           startedAt: prevState.startedAt || now,
-          productionAt: undefined,
-          lastElapsedSeconds: prevState.lastElapsedSeconds
+          // productionAt: undefined,
+          // lastElapsedSeconds: prevState.lastElapsedSeconds
+          // operador: modal.operador ?? prevState.operador
+
         }
       };
     });
