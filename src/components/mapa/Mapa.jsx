@@ -149,8 +149,7 @@ const Mapa = () => {
               start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
               end_at: new Date(now).toISOString(),
               elapsed_seconds: elapsedSeconds,
-              operador: prevState.operador ?? null
-
+              operador: imgStates[id].operador ?? null
             }]);
           } catch (e) {
             console.error('Supabase insert error', e);
@@ -194,8 +193,7 @@ const Mapa = () => {
           startedAt: prevState.startedAt || now,
           // productionAt: undefined,
           // lastElapsedSeconds: prevState.lastElapsedSeconds
-          // operador: modal.operador ?? prevState.operador
-
+          operador: modal.operador ?? prevState.operador
         }
       };
     });
