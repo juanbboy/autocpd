@@ -17,11 +17,21 @@ export const mainOptions = [
  * Mapa de etiquetas para los valores numéricos
  */
 export const mainLabels = {
-    1: "Mecánico",
+    1: "Mecanico",
     2: "Barrado",
-    3: "Electrónico",
-    4: "Inicio Producción",
+    3: "Electronico",
+    4: "Inicio Produccion",
     5: "Seguimiento",
     6: "Tallaje",
-    7: "Fin Producción",
+    7: "Fin Produccion",
+};
+
+export const mainCode = {
+    1: "I06",
+    2: "I05",
+    3: "I26",
+    4: "I29",
+    5: "I55",
+    6: "I11",
+    7: "I30",
 };

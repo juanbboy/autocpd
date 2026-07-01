@@ -7,7 +7,7 @@ import { removeUndefined } from '../../utils/Utils';
 import cpd from '../../assets/cpdblanco.png';
 import './mapa.css';
 import { dbRef } from '../../firebase/firebase-config';
-import { mainOptions, mainLabels } from '../../config/mainOptionsConfig';
+import { mainOptions, mainLabels, mainCode } from '../../config/mainOptionsConfig';
 import { secondaryOptionsMap } from '../../config/secondaryOptionsConfig';
 import { getImageBySrc } from '../../config/machineColorsConfig';
 import { getMachineReference, fetchReferencesFromSupabase } from '../../config/machineReferencesConfig';
@@ -143,6 +143,7 @@ const Mapa = () => {
           try {
             await supabase.from('historial_estados').insert([{
               maquina_id: id,
+              cod: mainCode[prevState.main] ?? null,
               estadoprincipal: mainLabels[prevState.main] ?? null,
               causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
               causa_custom: prevState.secondaryCustom ?? null,
