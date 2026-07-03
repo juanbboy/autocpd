@@ -1,12 +1,5 @@
 import { supabase } from '../components/pruebas/client';
 
-
-
-/**
- * Configuración de referencias de máquinas con soporte para localStorage
- * Permite agregar, editar y eliminar referencias dinámicamente
- */
-
 // Referencias por defecto
 const defaultReferences = {
     // // Sierras Circulares
