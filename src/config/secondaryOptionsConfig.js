@@ -31,3 +31,20 @@ export const secondaryOptionsMap = {
     ],
     7: []
 };
+
+
+// export const mainSecondaryCode = {
+//     1: "I06",
+//     2: "I05",
+//     3: "I26",
+//     4: "I29",
+//     5: "I55",
+//     6: "I11",
+//     7: "I30",
+//     8: "DI01",
+//     9: "DI02",
+//     10: "DI117",
+//     11: "DI11",
+//     12: "I16",
+
+// };
