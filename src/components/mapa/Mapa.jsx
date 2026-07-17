@@ -129,7 +129,8 @@ const Mapa = () => {
 
   // Maneja la selección de una opción principal en el modal
   function handleMainOption(main) {
-    if ((main === 4 || main === 7) && modal.target) {
+    console.log("main", main)
+    if ((main === 4 || main === 7 || main === null) && modal.target) {
       const id = modal.target.getAttribute('data-id');
       let src = getSrc(id);
       // Prepare insertion data before updating state
@@ -239,7 +240,7 @@ const Mapa = () => {
           {[
             // Solo IDs únicos para móvil, sin repetición de máquinas
             "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19",
-            "26", "28", "30", "31", "32", "33", "34", "35", "36", "38", "39", "40", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
+            "28", "30", "33", "34", "35", "36", "39", "43", "44", "46", "48", "49", "50", "51", "52", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
           ].map(id => (
             <div key={id} style={{ marginBottom: 2, width: 90, textAlign: "center" }}>
               <input
@@ -286,23 +287,6 @@ const Mapa = () => {
       {/* Grid de máquinas para PC/tablet */}
       <div className="px-4 d-none d-md-block">
         <div className="row py-4 text-center">
-          <div className="col p-0 ">
-
-            <input type="image" onClick={img} src={getSrc("S19")} width={90} alt="Placeholder" data-id="S19"
-              className='borde' />
-            <div>
-              <strong>S19</strong>
-              {getMachineReference("S19") && (
-                <div style={{ fontSize: 11, color: "#666" }}>
-                  {getMachineReference("S19")}
-                </div>
-              )}
-              <div className="mq">
-                {getSecondaryLabel("S19") || "\u00A0"}
-              </div>
-              {getTimerLabel("S19")}
-            </div>
-          </div>
           <div className="col p-0 ">
 
             <input type="image" onClick={img} src={getSrc("S3")} width={90} alt="Placeholder" data-id="S3"
@@ -527,6 +511,22 @@ const Mapa = () => {
         </div>
 
         <div className="row py-5 text-center no-gutters align-items-center">
+          <div className="col p-0 ">
+
+            <input type="image" onClick={img} src={getSrc("S19")} width={90} alt="Placeholder" data-id="S19"
+              className='borde' />
+            <div>
+              <strong>S19</strong>
+              {getMachineReference("S19") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S19")}
+                </div>
+              )}
+              <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S19")}</div>
+              {getTimerLabel("S19")}
+            </div>
+          </div>
+
           <div className="col p-0 " >
 
             <input type="image" onClick={img} src={getSrc("S18")} width={90} alt="Placeholder" data-id="S18"
@@ -542,6 +542,7 @@ const Mapa = () => {
               {getTimerLabel("S18")}
             </div>
           </div>
+
           <div className="col p-0 " >
 
             <input type="image" onClick={img} src={getSrc("S17")} width={90} alt="Placeholder" data-id="S17"
@@ -602,26 +603,7 @@ const Mapa = () => {
             </div>
           </div>
 
-          <div className="col">
-            <div className="row ">
-              <div className="col " >
-
-                <input type="image" onClick={img} src={getSrc("67")} width={60} alt="Placeholder" data-id="67"
-                  className='borde' />
-                <div>
-                  <strong>67</strong>
-                  {getMachineReference("67") && (
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("67")}
-                    </div>
-                  )}
-                  <div className="mq">
-                    {getSecondaryLabel("67") || "\u00A0"}
-                  </div>
-                  {getTimerLabel("67")}
-                </div>
-              </div>
-            </div>
+          <div className="col ">
             <div className="row ">
               <div className="col " >
 
@@ -638,107 +620,6 @@ const Mapa = () => {
                     {getSecondaryLabel("66") || "\u00A0"}
                   </div>
                   {getTimerLabel("66")}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col ">
-            <div className="row ">
-              <div className="col " >
-
-                <input type="image" onClick={img} src={getSrc("26")} width={60} alt="Placeholder" data-id="26"
-                  className='borde' />
-                <div>
-                  <strong>26</strong>
-                  {getMachineReference("26") && (
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("26")}
-                    </div>
-                  )}
-                  <div className="mq">
-                    {getSecondaryLabel("26") || "\u00A0"}
-                  </div>
-                  {getTimerLabel("26")}
-                </div>
-              </div>
-            </div>
-            <div className="row ">
-              <div className="col " >
-
-                <input type="image" onClick={img} src={getSrc("49")} width={60} alt="Placeholder" data-id="49"
-                  className='borde' />
-                <div>
-                  <strong>49</strong>
-                  {getMachineReference("49") && (
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("49")}
-                    </div>
-                  )}
-                  <div className="mq">
-                    {getSecondaryLabel("49") || "\u00A0"}
-                  </div>
-                  {getTimerLabel("49")}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col ">
-            <div className="row ">
-              <div className="col " >
-
-                <input type="image" onClick={img} src={getSrc("28")} width={60} alt="Placeholder" data-id="28"
-                  className='borde' />
-                <div>
-                  <strong>28</strong>
-                  {getMachineReference("28") && (
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("28")}
-                    </div>
-                  )}
-                  <div className="mq">
-                    {getSecondaryLabel("28") || "\u00A0"}
-                  </div>
-                  {getTimerLabel("28")}
-                </div>
-              </div>
-            </div>
-            <div className="row ">
-              <div className="col " >
-
-                <input type="image" onClick={img} src={getSrc("55")} width={60} alt="Placeholder" data-id="55"
-                  className='borde' />
-                <div>
-                  <strong>55</strong>
-                  {getMachineReference("55") && (
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("55")}
-                    </div>
-                  )}
-                  <div className="mq">
-                    {getSecondaryLabel("55") || "\u00A0"}
-                  </div>
-                  {getTimerLabel("55")}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col ">
-            <div className="row ">
-              <div className="col " >
-
-                <input type="image" onClick={img} src={getSrc("30")} width={60} alt="Placeholder" data-id="30"
-                  className='borde' />
-                <div>
-                  <strong>30</strong>
-                  {getMachineReference("30") && (
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("30")}
-                    </div>
-                  )}
-                  <div className="mq">
-                    {getSecondaryLabel("30") || "\u00A0"}
-                  </div>
-                  {getTimerLabel("30")}
                 </div>
               </div>
             </div>
@@ -766,19 +647,19 @@ const Mapa = () => {
             <div className="row ">
               <div className="col " >
 
-                <input type="image" onClick={img} src={getSrc("31")} width={60} alt="Placeholder" data-id="31"
+                <input type="image" onClick={img} src={getSrc("67")} width={60} alt="Placeholder" data-id="67"
                   className='borde' />
                 <div>
-                  <strong>31</strong>
-                  {getMachineReference("31") && (
+                  <strong>67</strong>
+                  {getMachineReference("67") && (
                     <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("31")}
+                      {getMachineReference("67")}
                     </div>
                   )}
                   <div className="mq">
-                    {getSecondaryLabel("31") || "\u00A0"}
+                    {getSecondaryLabel("67") || "\u00A0"}
                   </div>
-                  {getTimerLabel("31")}
+                  {getTimerLabel("67")}
                 </div>
               </div>
             </div>
@@ -806,19 +687,19 @@ const Mapa = () => {
             <div className="row ">
               <div className="col " >
 
-                <input type="image" onClick={img} src={getSrc("32")} width={60} alt="Placeholder" data-id="32"
+                <input type="image" onClick={img} src={getSrc("28")} width={60} alt="Placeholder" data-id="28"
                   className='borde' />
                 <div>
-                  <strong>32</strong>
-                  {getMachineReference("32") && (
+                  <strong>28</strong>
+                  {getMachineReference("28") && (
                     <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("32")}
+                      {getMachineReference("28")}
                     </div>
                   )}
                   <div className="mq">
-                    {getSecondaryLabel("32") || "\u00A0"}
+                    {getSecondaryLabel("28") || "\u00A0"}
                   </div>
-                  {getTimerLabel("32")}
+                  {getTimerLabel("28")}
                 </div>
               </div>
             </div>
@@ -846,19 +727,19 @@ const Mapa = () => {
             <div className="row ">
               <div className="col " >
 
-                <input type="image" onClick={img} src={getSrc("33")} width={60} alt="Placeholder" data-id="33"
+                <input type="image" onClick={img} src={getSrc("30")} width={60} alt="Placeholder" data-id="30"
                   className='borde' />
                 <div>
-                  <strong>33</strong>
-                  {getMachineReference("33") && (
+                  <strong>30</strong>
+                  {getMachineReference("30") && (
                     <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("33")}
+                      {getMachineReference("30")}
                     </div>
                   )}
                   <div className="mq">
-                    {getSecondaryLabel("33") || "\u00A0"}
+                    {getSecondaryLabel("30") || "\u00A0"}
                   </div>
-                  {getTimerLabel("33")}
+                  {getTimerLabel("30")}
                 </div>
               </div>
             </div>
@@ -886,19 +767,19 @@ const Mapa = () => {
             <div className="row ">
               <div className="col " >
 
-                <input type="image" onClick={img} src={getSrc("35")} width={60} alt="Placeholder" data-id="35"
+                <input type="image" onClick={img} src={getSrc("33")} width={60} alt="Placeholder" data-id="33"
                   className='borde' />
                 <div>
-                  <strong>35</strong>
-                  {getMachineReference("35") && (
+                  <strong>33</strong>
+                  {getMachineReference("33") && (
                     <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("35")}
+                      {getMachineReference("33")}
                     </div>
                   )}
                   <div className="mq">
-                    {getSecondaryLabel("35") || "\u00A0"}
+                    {getSecondaryLabel("33") || "\u00A0"}
                   </div>
-                  {getTimerLabel("35")}
+                  {getTimerLabel("33")}
                 </div>
               </div>
             </div>
@@ -926,19 +807,19 @@ const Mapa = () => {
             <div className="row ">
               <div className="col " >
 
-                <input type="image" onClick={img} src={getSrc("36")} width={60} alt="Placeholder" data-id="36"
+                <input type="image" onClick={img} src={getSrc("34")} width={60} alt="Placeholder" data-id="34"
                   className='borde' />
                 <div>
-                  <strong>36</strong>
-                  {getMachineReference("36") && (
+                  <strong>34</strong>
+                  {getMachineReference("34") && (
                     <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("36")}
+                      {getMachineReference("34")}
                     </div>
                   )}
                   <div className="mq">
-                    {getSecondaryLabel("36") || "\u00A0"}
+                    {getSecondaryLabel("34") || "\u00A0"}
                   </div>
-                  {getTimerLabel("36")}
+                  {getTimerLabel("34")}
                 </div>
               </div>
             </div>
@@ -966,22 +847,23 @@ const Mapa = () => {
             <div className="row ">
               <div className="col " >
 
-                <input type="image" onClick={img} src={getSrc("38")} width={60} alt="Placeholder" data-id="38"
+                <input type="image" onClick={img} src={getSrc("35")} width={60} alt="Placeholder" data-id="35"
                   className='borde' />
                 <div>
-                  <strong>38</strong>
-                  {getMachineReference("38") && (
+                  <strong>35</strong>
+                  {getMachineReference("35") && (
                     <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("38")}
+                      {getMachineReference("35")}
                     </div>
                   )}
-                  <div className='mq'>
-                    {getSecondaryLabel("38") || "\u00A0"}
+                  <div className="mq">
+                    {getSecondaryLabel("35") || "\u00A0"}
                   </div>
-                  {getTimerLabel("38")}
+                  {getTimerLabel("35")}
                 </div>
               </div>
             </div>
+
             <div className="row ">
               <div className="col " >
 
@@ -1006,19 +888,19 @@ const Mapa = () => {
             <div className="row ">
               <div className="col " >
 
-                <input type="image" onClick={img} src={getSrc("39")} width={60} alt="Placeholder" data-id="39"
+                <input type="image" onClick={img} src={getSrc("36")} width={60} alt="Placeholder" data-id="36"
                   className='borde' />
                 <div>
-                  <strong>39</strong>
-                  {getMachineReference("39") && (
+                  <strong>36</strong>
+                  {getMachineReference("36") && (
                     <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("39")}
+                      {getMachineReference("36")}
                     </div>
                   )}
                   <div className="mq">
-                    {getSecondaryLabel("39") || "\u00A0"}
+                    {getSecondaryLabel("36") || "\u00A0"}
                   </div>
-                  {getTimerLabel("39")}
+                  {getTimerLabel("36")}
                 </div>
               </div>
             </div>
@@ -1046,19 +928,19 @@ const Mapa = () => {
             <div className="row ">
               <div className="col " >
 
-                <input type="image" onClick={img} src={getSrc("40")} width={60} alt="Placeholder" data-id="40"
+                <input type="image" onClick={img} src={getSrc("39")} width={60} alt="Placeholder" data-id="39"
                   className='borde' />
                 <div>
-                  <strong>40</strong>
-                  {getMachineReference("40") && (
+                  <strong>39</strong>
+                  {getMachineReference("39") && (
                     <div style={{ fontSize: 11, color: "#666" }}>
-                      {getMachineReference("40")}
+                      {getMachineReference("39")}
                     </div>
                   )}
                   <div className="mq">
-                    {getSecondaryLabel("40") || "\u00A0"}
+                    {getSecondaryLabel("39") || "\u00A0"}
                   </div>
-                  {getTimerLabel("40")}
+                  {getTimerLabel("39")}
                 </div>
               </div>
             </div>
@@ -1122,23 +1004,27 @@ const Mapa = () => {
           </div>
           <div className="col ">
 
-            <input type="image" onClick={img} src={getSrc("45")} width={60} alt="Placeholder" data-id="45"
-              className='borde' />
-            <div>
-              <strong>45</strong>
-              {getMachineReference("45") && (
-                <div style={{ fontSize: 11, color: "#666" }}>
-                  {getMachineReference("45")}
+            <div className="row ">
+              <div className="col " >
+
+                <input type="image" onClick={img} src={getSrc("55")} width={60} alt="Placeholder" data-id="55"
+                  className='borde' />
+                <div>
+                  <strong>55</strong>
+                  {getMachineReference("55") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("55")}
+                    </div>
+                  )}
+                  <div className="mq">
+                    {getSecondaryLabel("55") || "\u00A0"}
+                  </div>
+                  {getTimerLabel("55")}
                 </div>
-              )}
-              <div className="mq">
-                {getSecondaryLabel("45") || "\u00A0"}
               </div>
-              {getTimerLabel("45")}
             </div>
           </div>
           <div className="col ">
-
             <input type="image" onClick={img} src={getSrc("46")} width={60} alt="Placeholder" data-id="46"
               className='borde' />
             <div>
@@ -1155,24 +1041,27 @@ const Mapa = () => {
             </div>
           </div>
           <div className="col ">
+            <div className="row ">
+              <div className="col " >
 
-            <input type="image" onClick={img} src={getSrc("47")} width={60} alt="Placeholder" data-id="47"
-              className='borde' />
-            <div>
-              <strong>47</strong>
-              {getMachineReference("47") && (
-                <div style={{ fontSize: 11, color: "#666" }}>
-                  {getMachineReference("47")}
+                <input type="image" onClick={img} src={getSrc("49")} width={60} alt="Placeholder" data-id="49"
+                  className='borde' />
+                <div>
+                  <strong>49</strong>
+                  {getMachineReference("49") && (
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      {getMachineReference("49")}
+                    </div>
+                  )}
+                  <div className="mq">
+                    {getSecondaryLabel("49") || "\u00A0"}
+                  </div>
+                  {getTimerLabel("49")}
                 </div>
-              )}
-              <div className="mq">
-                {getSecondaryLabel("47") || "\u00A0"}
               </div>
-              {getTimerLabel("47")}
             </div>
           </div>
           <div className="col ">
-
             <input type="image" onClick={img} src={getSrc("48")} width={60} alt="Placeholder" data-id="48"
               className='borde' />
             <div>

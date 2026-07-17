@@ -103,7 +103,7 @@ const MapaModal = ({
                         ) : (
                             /* VISTA 2: BOTONES DE CAUSAS SECUNDARIAS */
                             <div>
-                                {modal.main === 4 ? (
+                                {[7, 8, 9, 10, 11, 12, 13].includes(modal.main) ? (
                                     <div className="mb-3" style={{ fontSize: 22, color: '#888' }}>En Producción.</div>
                                 ) : (
                                     <div>

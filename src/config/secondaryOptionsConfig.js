@@ -18,7 +18,7 @@ export const secondaryOptionsMap = {
         "Paros", "Sin programa", "Fusible", "Guia hilos", "Corto circuito", "Carga no conectada",
         "bloqueo", "Sensor Lubricacion", "Otros", "Motor LGL", "Trasdenuto", "Escaricato"
     ],
-    4: [],
+    4: null,
     5: [
         "Transferencia", "Vanizado", "Reviente LC", "Succion", "Reviente L180", "Piques",
         "Huecos y rotos", "Aguja", "Selectores", "Motores MPP", "Cuchillas",
@@ -29,7 +29,13 @@ export const secondaryOptionsMap = {
     6: [
         "Cambio de talla", "Cambio de referencia", "Desprogramada"
     ],
-    7: []
+    7: null,
+    8: null,
+    9: null,
+    10: null,
+    11: null,
+    12: null,
+    13: null,
 };
 
 
