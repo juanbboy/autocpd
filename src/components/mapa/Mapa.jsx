@@ -246,7 +246,7 @@ const Mapa = () => {
             await supabase.from('historial_pruebas').insert([{
               COD_T: mainId[id] ?? id,
               COD_O: getEffectiveCode(prevState.main, prevState.secondary),
-              estadoprincipal: mainOptions.find(opt => opt.main === prevState.main) ?? null,
+              estadoprincipal: mainOptions.find(option => option.main === prevState.main)?.label ?? null,
               causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
               causa_custom: prevState.secondaryCustom ?? null,
               start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
