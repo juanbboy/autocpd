@@ -6,51 +6,55 @@
 
 export const secondaryOptionsMap = {
     1: [
-        "Transferencia", "Vanizado", "Reviente LC", "Succion", "Reviente L180", "Piques",
-        "Huecos y rotos", "Aguja", "Selectores", "Motores MPP", "Cuchillas", "correa",
+        { label: "Mant. correctivo", code: "DI118" },
+        { label: "Mant. preventivo", code: "I14" },
+        { label: "Selectores", code: "DI04" },
+        { label: "Ajuste calidad", code: "DI06" },
+        { label: "Limpieza", code: "I10" },
+        { label: "Daño de cuchillas", code: "DI03" },
+
+        "Transferencia", "Reviente LC", "Succion", "Reviente L180", "Piques",
+        "Huecos y rotos", "Aguja", "Motores MPP", "Cuchillas", "correa",
         "Manguera rota", "Lubricacion", "Guia hilos", "Otros", "Limpieza", "Trasdenuto", "Escaricato"
     ],
     2: [
-        "Licra", "Nylon", "Motores", "Sin programa"
+        { label: "Calidad M. prima", code: "I05" },
+        { label: "Barrado", code: "I05" },
+        { label: "Falta de materia prima", code: "I03" },
+        { label: "Cambio de hilaza", code: "DI11" }
     ],
     3: [
         "Valvulas", "Motores MPP", "No enciende", "Turbina", "Motor principal", "Sensores",
         "Paros", "Sin programa", "Fusible", "Guia hilos", "Corto circuito", "Carga no conectada",
         "bloqueo", "Sensor Lubricacion", "Otros", "Motor LGL", "Trasdenuto", "Escaricato"
     ],
-    4: null,
-    5: [
-        "Transferencia", "Vanizado", "Reviente LC", "Succion", "Reviente L180", "Piques",
-        "Huecos y rotos", "Aguja", "Selectores", "Motores MPP", "Cuchillas",
-        "Valvulas", "Motores MPP", "No enciende", "Turbina", "Motor principal", "Sensores",
-        "Paros", "Sin programa", "Fusible", "Materia prima", "Motores", "Sensor Lubricacion",
-        "Lubricacion", "Guia hilos", "Otros", "Motor LGL", "Limpieza", "Trasdenuto", "Escaricato"
-    ],
+    4: [],
+    // 5: [
+    //     "Transferencia", "Vanizado", "Reviente LC", "Succion", "Reviente L180", "Piques",
+    //     "Huecos y rotos", "Aguja", "Selectores", "Motores MPP", "Cuchillas",
+    //     "Valvulas", "Motores MPP", "No enciende", "Turbina", "Motor principal", "Sensores",
+    //     "Paros", "Sin programa", "Fusible", "Materia prima", "Motores", "Sensor Lubricacion",
+    //     "Lubricacion", "Guia hilos", "Otros", "Motor LGL", "Limpieza", "Trasdenuto", "Escaricato"
+    // ],
     6: [
-        "Cambio de talla", "Cambio de referencia", "Desprogramada"
+        { label: "Cambio de talla", code: "DI01" },
+        { label: "Cambio de referencia", code: "I11" },
+        { label: "Desprogramada", code: "DI09" },
+
     ],
-    7: null,
-    8: null,
-    9: null,
-    10: null,
-    11: null,
-    12: null,
-    13: null,
+    7: [],
+    9: [
+        "Aguja -10", "Aguja +10"
+    ],
+    16: [
+        { label: "Inasistencia ", code: "DI19" },
+        { label: "Falta de mecanico", code: "DI117" },
+        { label: "Falta de operario", code: "DI117" },
+        { label: "Comida", code: "I08" },
+        { label: "Ajuste de calidad", code: "I16" },
+        { label: "Reuniones", code: "I17" },
+        { label: "Inventario", code: "I19" },
+        { label: "Pausas activas", code: "I20" },
+        { label: "Capacitaciónes", code: "I22" },
+    ]
 };
-
-
-// export const mainSecondaryCode = {
-//     1: "I06",
-//     2: "I05",
-//     3: "I26",
-//     4: "I29",
-//     5: "I55",
-//     6: "I11",
-//     7: "I30",
-//     8: "DI01",
-//     9: "DI02",
-//     10: "DI117",
-//     11: "DI11",
-//     12: "I16",
-
-// };

@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { set } from 'firebase/database';
+import { get, set, remove, ref as rtdbRef, onValue } from 'firebase/database';
 import useFirebaseSync from '../../hooks/useFirebaseSync';
 import useMachineTimers from '../../hooks/useMachineTimers';
 import { supabase } from '../pruebas/client';
 import { removeUndefined } from '../../utils/Utils';
 import cpd from '../../assets/cpdblanco.png';
 import './mapa.css';
-import { dbRef } from '../../firebase/firebase-config';
-import { mainOptions, mainLabels, mainCode } from '../../config/mainOptionsConfig';
+import { dbRef, dbi } from '../../firebase/firebase-config';
+import { mainOptions, mainId } from '../../config/mainOptionsConfig';
 import { secondaryOptionsMap } from '../../config/secondaryOptionsConfig';
 import { getImageBySrc } from '../../config/machineColorsConfig';
 import { getMachineReference, fetchReferencesFromSupabase } from '../../config/machineReferencesConfig';
@@ -25,6 +25,7 @@ const Mapa = () => {
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
   const [modal, setModal] = useState({ show: false, target: null, main: null });
   const [showAdminModal, setShowAdminModal] = useState(false);
+  const [askedOperarios, setAskedOperarios] = useState({});
   //const [refsLoaded, setRefsLoaded] = useState(false);
 
 
@@ -76,17 +77,66 @@ const Mapa = () => {
     set(dbRef, cleanImgStates);
   }, [imgStates]);
 
+  // --- Realtime listener para operarios preguntados hoy
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const askedRef = rtdbRef(dbi, `askedOperarios/${today}`);
+    const unsubscribe = onValue(askedRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      setAskedOperarios(val);
+    }, (err) => {
+      console.warn('Error listening askedOperarios:', err);
+    });
+    return () => {
+      try { unsubscribe(); } catch (e) { }
+    };
+  }, []);
 
+  useEffect(() => {
+    limpiarMarkOperarioAsked();
+  }, []);
+
+  // Comprueba si un operario ya fue preguntado hoy (lookup en caché)
+  const checkOperarioAsked = (nombre) => {
+    return Boolean(askedOperarios && askedOperarios[nombre]);
+  };
+
+  // Marca que un operario fue preguntado hoy (escribe en RTDB)
+  const markOperarioAsked = (nombre, turno) => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const pathRef = rtdbRef(dbi, `askedOperarios/${today}/${nombre}`);
+      set(pathRef, { ts: Date.now(), turno: turno });
+    } catch (e) {
+      console.error('markOperarioAsked error', e);
+    }
+  };
+
+  const limpiarMarkOperarioAsked = async () => {
+    const askedRef = rtdbRef(dbi, 'askedOperarios');
+    const snapshot = await get(askedRef);
+
+    const data = snapshot.val() || {};
+    const hoy = new Date().toISOString().slice(0, 10);
+
+    for (const fecha in data) {
+      if (fecha !== hoy) {
+        await remove(rtdbRef(dbi, `askedOperarios/${fecha}`));
+      }
+    }
+  };
 
   function getSecondaryText(main, secondary, secondaryCustom) {
     if (main == null || secondary == null) return null;
-    const opts = secondaryOptionsMap[main] || [];
-    const label = opts[secondary];
+
+    const option = (secondaryOptionsMap[main] || [])[secondary];
+    const label = typeof option === "object" ? option.label : option;
+
     if (!label) return null;
-    if (label === "Otros") {
-      return secondaryCustom ? secondaryCustom : label;
-    }
-    return label;
+
+    return label === "Otros"
+      ? secondaryCustom || label
+      : label;
   }
 
 
@@ -99,19 +149,45 @@ const Mapa = () => {
   // Devuelve la etiqueta de la subopción seleccionada para una máquina
   function getSecondaryLabel(id) {
     const val = imgStates[id];
-    if (!val || typeof val !== "object" || val.secondary == null || val.main == null) {
+
+    if (!val || typeof val !== "object" || val.main == null) {
       return "";
     }
-    const opts = secondaryOptionsMap[val.main] || [];
-    if (opts[val.secondary] === "Otros" && val.secondaryCustom) {
+
+    // No mostrar texto para Inicio/Fin de producción
+    if (val.main === 4 || val.main === 7) {
+      return "";
+    }
+
+    const mainoption = mainOptions.find(opt => opt.main === val.main) || "";
+    const mainLabel = mainoption.label || "";
+
+    if (val.secondary == null) {
+      return mainLabel;
+    }
+
+    const options = secondaryOptionsMap[val.main] || [];
+    const selectedOption = options[val.secondary];
+
+    // Si es objeto, toma únicamente el label.
+    // Si es texto, utiliza directamente ese texto.
+    const label = typeof selectedOption === "object"
+      ? selectedOption.label
+      : selectedOption;
+
+    if (label === "Otros" && val.secondaryCustom) {
       return val.secondaryCustom;
     }
-    const label = opts[val.secondary] || "";
-    if (label.length > 18) {
-      return label.slice(0, 15) + "...";
+
+    const displayLabel = label || mainLabel;
+
+    if (displayLabel.length > 18) {
+      return displayLabel.slice(0, 15) + "...";
     }
-    return label;
+
+    return displayLabel;
   }
+
   // Devuelve la imagen correspondiente al estado de la máquina
   function getSrc(id) {
     const val = imgStates[id];
@@ -124,40 +200,69 @@ const Mapa = () => {
     return secondaryOptionsMap[modal.main] || [];
   }
 
+  const getOperarioTurno = (nombre) => {
+    if (!nombre) return null;
+    const turnoFirebase = askedOperarios?.[nombre]?.turno;
+    if (turnoFirebase != null && turnoFirebase !== '') {
+      return turnoFirebase;
+    }
+    return modal.turno ?? null;
+  };
+
   const closeModal = () => setModal({ show: false, target: null, main: null });
   const backToMainModal = () => setModal(prev => ({ ...prev, main: null, show: true }));
 
+  function getEffectiveCode(main, secondary) {
+    const mainOption = mainOptions.find(option => option.main === main);
+    const secondaryOption = (secondaryOptionsMap[main] || [])[secondary];
+
+    if (
+      secondaryOption &&
+      typeof secondaryOption === "object" &&
+      secondaryOption.code
+    ) {
+      return secondaryOption.code;
+    }
+
+    return mainOption?.code || null;
+  }
   // Maneja la selección de una opción principal en el modal
   function handleMainOption(main) {
-    console.log("main", main)
-    if ((main === 4 || main === 7 || main === null) && modal.target) {
-      const id = modal.target.getAttribute('data-id');
-      let src = getSrc(id);
+    // const selectedMain = mainOptions.find(opt => opt.main === main);
+    const id = modal.target.getAttribute('data-id');
+    const options = secondaryOptionsMap[main] || [];
+    let src = getSrc(id);
+
+    if ((main === 4 || main === 7) && modal.target) {
       // Prepare insertion data before updating state
       setImgStates(prev => {
         const prevState = prev[id] || {};
         const now = Date.now();
         const elapsedSeconds = prevState.startedAt ? Math.round((now - prevState.startedAt) / 1000) : prevState.lastElapsedSeconds || 0;
-
+        const turno = getOperarioTurno(modal.operador ?? imgStates[id]?.operador);
         // Insert a record into Supabase for this machine stop
         (async () => {
           try {
-            await supabase.from('historial_estados').insert([{
-              maquina_id: id,
-              cod: mainCode[prevState.main] ?? null,
-              estadoprincipal: mainLabels[prevState.main] ?? null,
+            await supabase.from('historial_pruebas').insert([{
+              COD_T: mainId[id] ?? id,
+              COD_O: getEffectiveCode(prevState.main, prevState.secondary),
+              estadoprincipal: mainOptions.find(opt => opt.main === prevState.main) ?? null,
               causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
               causa_custom: prevState.secondaryCustom ?? null,
               start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
               end_at: new Date(now).toISOString(),
               elapsed_seconds: elapsedSeconds,
-              operador: imgStates[id].operador ?? null
+              MALAS: modal.operador ?? imgStates[id]?.operador ?? null,
+              TURNO: turno,
+              H_I: prevState.startedAt ? new Date(prevState.startedAt).getHours() : null,
+              M_I: prevState.startedAt ? new Date(prevState.startedAt).getMinutes() : null,
+              H_T: now ? new Date(now).getHours() : null,
+              M_T: now ? new Date(now).getMinutes() : null,
             }]);
           } catch (e) {
             console.error('Supabase insert error', e);
           }
         })();
-
         return {
           ...prev,
           [id]: {
@@ -166,6 +271,7 @@ const Mapa = () => {
             main,
           }
         }
+
       });
       // fcmSendNotification(
       //   `Máquina ${id}`,
@@ -175,8 +281,40 @@ const Mapa = () => {
       setModal({ show: false, target: null, main: null });
       return;
     }
+
+    if (options.length === 0) {
+      const src = getSrc(id);
+
+      setImgStates(prev => {
+        const prevState = prev[id] || {};
+        const now = Date.now();
+
+        return {
+          ...prev,
+          [id]: {
+            src,
+            secondary: null,
+            main,
+            secondaryCustom: undefined,
+            startedAt: prevState.startedAt || now,
+            operador: modal.operador ?? prevState.operador,
+            turno: modal.turno ?? prevState.turno
+          }
+        };
+      });
+
+      setTimeout(() => {
+        setModal({ show: false, target: null, main: null });
+      }, 0);
+
+      return;
+    }
+
     setModal((prev) => ({ ...prev, main }));
   }
+
+
+
   // Maneja la selección de una subopción (incluye opción personalizada "Otros")
   function handleSecondaryOption(secondaryIdx, customText) {
     if (!modal.target || !modal.main) return;
@@ -185,17 +323,20 @@ const Mapa = () => {
     const now = Date.now();
     setImgStates(prev => {
       const prevState = prev[id] || {};
+      const selectedOption = getSecondaryOptions()[secondaryIdx];
+      const selectedLabel = typeof selectedOption === "object"
+        ? selectedOption.label
+        : selectedOption;
       return {
         ...prev,
         [id]: {
           src,
           secondary: secondaryIdx,
           main: modal.main,
-          secondaryCustom: (secondaryIdx !== undefined && getSecondaryOptions()[secondaryIdx] === "Otros") ? customText : undefined,
+          secondaryCustom: selectedLabel === "Otros" ? customText : undefined,
           startedAt: prevState.startedAt || now,
-          // productionAt: undefined,
-          // lastElapsedSeconds: prevState.lastElapsedSeconds
-          operador: modal.operador ?? prevState.operador
+          operador: modal.operador ?? prevState.operador,
+          turno: modal.turno ?? prevState.turno
         }
       };
     });
@@ -240,7 +381,7 @@ const Mapa = () => {
           {[
             // Solo IDs únicos para móvil, sin repetición de máquinas
             "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19",
-            "28", "30", "33", "34", "35", "36", "39", "43", "44", "46", "48", "49", "50", "51", "52", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
+            "26", "28", "30", "31", "32", "33", "34", "35", "36", "38", "39", "40", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
           ].map(id => (
             <div key={id} style={{ marginBottom: 2, width: 90, textAlign: "center" }}>
               <input
@@ -287,6 +428,23 @@ const Mapa = () => {
       {/* Grid de máquinas para PC/tablet */}
       <div className="px-4 d-none d-md-block">
         <div className="row py-4 text-center">
+          <div className="col p-0 ">
+
+            <input type="image" onClick={img} src={getSrc("S23")} width={90} alt="Placeholder" data-id="S23"
+              className='borde' />
+            <div>
+              <strong>S23</strong>
+              {getMachineReference("S23") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S23")}
+                </div>
+              )}
+              <div className="mq">
+                {getSecondaryLabel("S23") || "\u00A0"}
+              </div>
+              {getTimerLabel("S23")}
+            </div>
+          </div>
           <div className="col p-0 ">
 
             <input type="image" onClick={img} src={getSrc("S3")} width={90} alt="Placeholder" data-id="S3"
@@ -511,7 +669,56 @@ const Mapa = () => {
         </div>
 
         <div className="row py-5 text-center no-gutters align-items-center">
+
           <div className="col p-0 ">
+
+            <input type="image" onClick={img} src={getSrc("S22")} width={90} alt="Placeholder" data-id="S22"
+              className='borde' />
+            <div>
+              <strong>S22</strong>
+              {getMachineReference("S22") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S22")}
+                </div>
+              )}
+              <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S22")}</div>
+              {getTimerLabel("S22")}
+            </div>
+          </div>
+
+          <div className="col p-0 ">
+
+            <input type="image" onClick={img} src={getSrc("S21")} width={90} alt="Placeholder" data-id="S21"
+              className='borde' />
+            <div>
+              <strong>S21</strong>
+              {getMachineReference("S21") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S21")}
+                </div>
+              )}
+              <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S21")}</div>
+              {getTimerLabel("S21")}
+            </div>
+          </div>
+
+          <div className="col p-0 ">
+
+            <input type="image" onClick={img} src={getSrc("S20")} width={90} alt="Placeholder" data-id="S20"
+              className='borde' />
+            <div>
+              <strong>S20</strong>
+              {getMachineReference("S20") && (
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {getMachineReference("S20")}
+                </div>
+              )}
+              <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S20")}</div>
+              {getTimerLabel("S20")}
+            </div>
+          </div>
+
+          <div className="col p-0 " >
 
             <input type="image" onClick={img} src={getSrc("S19")} width={90} alt="Placeholder" data-id="S19"
               className='borde' />
@@ -526,7 +733,6 @@ const Mapa = () => {
               {getTimerLabel("S19")}
             </div>
           </div>
-
           <div className="col p-0 " >
 
             <input type="image" onClick={img} src={getSrc("S18")} width={90} alt="Placeholder" data-id="S18"
@@ -542,7 +748,6 @@ const Mapa = () => {
               {getTimerLabel("S18")}
             </div>
           </div>
-
           <div className="col p-0 " >
 
             <input type="image" onClick={img} src={getSrc("S17")} width={90} alt="Placeholder" data-id="S17"
@@ -1257,6 +1462,8 @@ const Mapa = () => {
         onClose={closeModal}
         onBack={backToMainModal}
         setModal={setModal}
+        checkOperarioAsked={checkOperarioAsked}
+        markOperarioAsked={markOperarioAsked}
 
 
       />
