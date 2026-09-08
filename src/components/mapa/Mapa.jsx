@@ -37,10 +37,19 @@ const Mapa = () => {
 
   const getTimerLabel = (id) => {
     const timer = timers[id];
-    if (!timer) return null;
+
     return (
-      <div style={{ fontSize: 12, color: '#555', marginTop: 2 }}>
-        ⏱ {timer}
+      <div
+        style={{
+          height: 18,
+          lineHeight: "18px",
+          marginTop: 2,
+          fontSize: 12,
+          color: timer ? "#555" : "transparent",
+          visibility: timer ? "visible" : "hidden"
+        }}
+      >
+        {timer ? `⏱ ${timer}` : "\u00A0"}
       </div>
     );
   };
@@ -296,7 +305,9 @@ const Mapa = () => {
             secondary: null,
             main,
             secondaryCustom: undefined,
-            startedAt: prevState.startedAt || now,
+            startedAt: main === 5
+              ? null
+              : prevState.startedAt || now,
             operador: modal.operador ?? prevState.operador,
             turno: modal.turno ?? prevState.turno
           }
@@ -380,8 +391,8 @@ const Mapa = () => {
         >
           {[
             // Solo IDs únicos para móvil, sin repetición de máquinas
-            "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", " S21", "S22", "S23",
-            "28", "30", "31", "32", "33", "34", "35", "36", "38", "39", "40", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
+            "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23",
+            "28", "30", "33", "34", "35", "36", "38", "39", "43", "44", "46", "48", "49", "50", "51", "52", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
           ].map(id => (
             <div key={id} style={{ marginBottom: 2, width: 90, textAlign: "center" }}>
               <input
@@ -668,7 +679,7 @@ const Mapa = () => {
 
         </div>
 
-        <div className="row py-5 text-center no-gutters align-items-center">
+        <div className="row py-5 text-center no-gutters align-items-start">
 
           <div className="col p-0 ">
 

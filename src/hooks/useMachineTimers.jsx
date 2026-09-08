@@ -9,7 +9,15 @@ const formatDuration = (seconds) => {
 };
 
 const getMachineTimerText = (state, now) => {
-    if (!state || state.main === 4 || !state.startedAt) return null;
+    if (
+        !state ||
+        state.main === 4 ||
+        state.main === 5 ||
+        state.main === 7 ||
+        !state.startedAt
+    ) {
+        return null;
+    }
     const elapsedSeconds = Math.max(0, Math.round((now - state.startedAt) / 1000));
     return formatDuration(elapsedSeconds);
 };
