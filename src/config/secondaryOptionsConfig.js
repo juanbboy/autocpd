@@ -14,7 +14,7 @@ export const secondaryOptionsMap = {
         { label: "Daño de cuchillas", code: "DI03" },
 
         "Transferencia", "Reviente LC", "Succion", "Reviente L180", "Piques",
-        "Huecos y rotos", "Motores MPP", "Cuchillas", "correa",
+        "Huecos y rotos", "Barrado mot. MPP", "Cuchillas", "correa",
         "Manguera rota", "Lubricacion", "Guia hilos", "Otros", "Limpieza", "Trasdenuto", "Escaricato"
     ],
     2: [
@@ -44,7 +44,7 @@ export const secondaryOptionsMap = {
     ],
     7: [],
     9: [
-        "Aguja -10", "Aguja +10"
+        "Aguja -10", "Aguja +10", "Piques", "Platinas"
     ],
     16: [
         { label: "Inasistencia ", code: "DI19" },
