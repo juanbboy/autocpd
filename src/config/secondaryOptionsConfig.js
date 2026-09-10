@@ -1,9 +1,3 @@
-/**
- * Configuración de opciones secundarias (Causas/Motivos de los paros)
- * Estructura: { mainId: [opción1, opción2, ...] }
- * Puedes agregar, quitar o modificar opciones para cada estado principal
- */
-
 export const secondaryOptionsMap = {
     1: [
         { label: "Mant. correctivo", code: "DI118" },
@@ -12,9 +6,10 @@ export const secondaryOptionsMap = {
         { label: "Ajuste calidad", code: "DI06" },
         { label: "Limpieza", code: "I10" },
         { label: "Daño de cuchillas", code: "DI03" },
+        { label: "Barrado mot. MPP", code: "DI12" },
 
         "Transferencia", "Reviente LC", "Succion", "Reviente L180", "Piques",
-        "Huecos y rotos", "Barrado mot. MPP", "correa",
+        "Huecos y rotos", "correa",
         "Manguera rota", "Lubricacion", "Guia hilos", "Otros", "Limpieza", "Trasdenuto", "Escaricato"
     ],
     2: [
