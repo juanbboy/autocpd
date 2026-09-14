@@ -23,6 +23,7 @@ const Mapa = () => {
   const [imgStates, setImgStates] = useState({});
   const isFirstLoad = useRef(true); // Para evitar sobrescribir al cargar por primera vez
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
+  const syncTimeout = useRef(null);
   const [modal, setModal] = useState({ show: false, target: null, main: null });
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [askedOperarios, setAskedOperarios] = useState({});
@@ -79,7 +80,26 @@ const Mapa = () => {
       return;
     }
 
-    set(dbRef, removeUndefined(imgStates));
+    if (syncTimeout.current) {
+      clearTimeout(syncTimeout.current);
+    }
+
+    syncTimeout.current = setTimeout(() => {
+      set(dbRef, removeUndefined(imgStates))
+        .catch((error) => {
+          console.error('Error syncing machine states:', error);
+        })
+        .finally(() => {
+          syncTimeout.current = null;
+        });
+    }, 300);
+
+    return () => {
+      if (syncTimeout.current) {
+        clearTimeout(syncTimeout.current);
+        syncTimeout.current = null;
+      }
+    };
   }, [imgStates]);
 
   // --- Realtime listener para operarios preguntados hoy
