@@ -59,31 +59,27 @@ const Mapa = () => {
   //   .sort(([idA], [idB]) => idA.localeCompare(idB));
 
   useEffect(() => {
-    // Sync references from Supabase once on mount to keep refs consistent across devices
-    (async () => {
-      try {
-        const refs = await fetchReferencesFromSupabase();
-        if (refs);
-      } catch (e) {
-        console.error('Error syncing references from Supabase:', e);
-      }
-    })();
+    fetchReferencesFromSupabase().catch((error) => {
+      console.error('Error syncing references from Supabase:', error);
+    });
+  }, []);
 
-    // Sube los cambios locales a Firebase (evita subir si el cambio viene de Firebase)
+  useEffect(() => {
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
       return;
     }
+
     if (ignoreNext.current) {
       ignoreNext.current = false;
       return;
     }
+
     if (!imgStates || Object.keys(imgStates).length === 0) {
       return;
     }
-    // Limpia claves undefined antes de subir a Firebase
-    const cleanImgStates = removeUndefined(imgStates);
-    set(dbRef, cleanImgStates);
+
+    set(dbRef, removeUndefined(imgStates));
   }, [imgStates]);
 
   // --- Realtime listener para operarios preguntados hoy
