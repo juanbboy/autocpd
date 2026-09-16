@@ -10,7 +10,7 @@ export const secondaryOptionsMap = {
 
         "Transferencia", "Reviente LC", "Succion", "Reviente L180", "Piques",
         "Huecos y rotos", "correa",
-        "Manguera rota", "Lubricacion", "Guia hilos", "Otros", "Limpieza", "Trasdenuto", "Escaricato"
+        "Manguera rota", "Lubricacion", "Guia hilos", "Otros", "Trasdenuto", "Escaricato"
     ],
     2: [
         { label: "Calidad M. prima", code: "I05" },

@@ -256,31 +256,35 @@ const Mapa = () => {
       setImgStates(prev => {
         const prevState = prev[id] || {};
         const now = Date.now();
-        const elapsedSeconds = prevState.startedAt ? Math.round((now - prevState.startedAt) / 1000) : prevState.lastElapsedSeconds || 0;
         const turno = getOperarioTurno(modal.operador ?? imgStates[id]?.operador);
-        // Insert a record into Supabase for this machine stop
-        (async () => {
-          try {
-            await supabase.from('historial_pruebas').insert([{
-              COD_T: mainId[id] ?? id,
-              COD_O: getEffectiveCode(prevState.main, prevState.secondary),
-              estadoprincipal: mainOptions.find(option => option.main === prevState.main)?.label ?? null,
-              causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
-              causa_custom: prevState.secondaryCustom ?? null,
-              start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
-              end_at: new Date(now).toISOString(),
-              elapsed_seconds: elapsedSeconds,
-              MALAS: modal.operador ?? imgStates[id]?.operador ?? null,
-              TURNO: turno,
-              H_I: prevState.startedAt ? new Date(prevState.startedAt).getHours() : null,
-              M_I: prevState.startedAt ? new Date(prevState.startedAt).getMinutes() : null,
-              H_T: now ? new Date(now).getHours() : null,
-              M_T: now ? new Date(now).getMinutes() : null,
-            }]);
-          } catch (e) {
-            console.error('Supabase insert error', e);
-          }
-        })();
+        if (prevState.startedAt) {
+          const elapsedSeconds = prevState.startedAt ? Math.round((now - prevState.startedAt) / 1000) : prevState.lastElapsedSeconds || 0;
+          (async () => {
+            try {
+              const { error } = await supabase.from('historial_pruebas').insert([{
+                COD_T: mainId[id] ?? id,
+                COD_O: getEffectiveCode(prevState.main, prevState.secondary),
+                estadoprincipal: mainOptions.find(option => option.main === prevState.main)?.label ?? null,
+                causa: getSecondaryText(prevState.main, prevState.secondary, prevState.secondaryCustom),
+                causa_custom: prevState.secondaryCustom ?? null,
+                start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
+                end_at: new Date(now).toISOString(),
+                elapsed_seconds: elapsedSeconds,
+                MALAS: modal.operador ?? imgStates[id]?.operador ?? null,
+                TURNO: turno,
+                H_I: prevState.startedAt ? new Date(prevState.startedAt).getHours() : null,
+                M_I: prevState.startedAt ? new Date(prevState.startedAt).getMinutes() : null,
+                H_T: now ? new Date(now).getHours() : null,
+                M_T: now ? new Date(now).getMinutes() : null,
+              }]);
+              if (error) {
+                console.error('Supabase insert error:', error);
+              }
+            } catch (error) {
+              console.error('Error inesperado conectando con Supabase:', error);
+            }
+          })();
+        }
         return {
           ...prev,
           [id]: {
