@@ -3,7 +3,7 @@ export const mainOptions = [
     { label: "Electrónico", main: 3, code: "I26", className: "btn btn-warning", hasSecondary: true },
     { label: "Falta de energia", main: 8, code: "I04", className: "btn btn-warning", hasSecondary: false },
     { label: "Falta de aire", main: 13, code: "I12", className: "btn btn-warning", hasSecondary: false },
-    { label: "Ajust. cambio ref", main: 11, code: "I30", className: "btn btn-warning", hasSecondary: false },
+    { label: "Ajust. cambio ref", main: 11, code: "DI114", className: "btn btn-warning", hasSecondary: false },
     { label: "Muestras", main: 10, code: "I09", className: "btn btn-warning", hasSecondary: false },
     { label: "Materia Prima", main: 2, code: "", className: "btn btn-info", hasSecondary: true },
     { label: "Tallaje", main: 6, code: "I11", className: "btn btn-dark", hasSecondary: true },
