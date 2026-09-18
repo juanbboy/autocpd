@@ -1,9 +1,9 @@
 export const permissions = {
     1: {
-        allowedUids: ['lg9wWMV68ldCTLhtLVaIjEjXr2P2']
+        allowedUids: ['CWF5LqkDTGafD3vv1SD0qZxBSf23', 'eGmWLzOIzgeLkaTTjNoc0mODlJJ2']
     },
     3: {
-        allowedUids: ['lg9wWMV68ldCTLhtLVaIjEjXr2P2']
+        allowedUids: ['CWF5LqkDTGafD3vv1SD0qZxBSf23', 'eGmWLzOIzgeLkaTTjNoc0mODlJJ2']
     },
 
 };
