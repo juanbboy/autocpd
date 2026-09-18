@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useSelector } from 'react-redux';
 import { get, set, remove, ref as rtdbRef, onValue } from 'firebase/database';
 import useFirebaseSync from '../../hooks/useFirebaseSync';
 import useMachineTimers from '../../hooks/useMachineTimers';
@@ -11,7 +12,7 @@ import { mainOptions, mainId } from '../../config/mainOptionsConfig';
 import { secondaryOptionsMap } from '../../config/secondaryOptionsConfig';
 import { getImageBySrc } from '../../config/machineColorsConfig';
 import MapaModal from './MapaModal';
-
+import { closeTimer } from '../../config/permissions';
 //import { preParseFinder } from 'echarts/types/src/util/model.js';
 // import { requestNotificationPermissionAndToken } from '../../hooks/useToken';
 // import { useFCM }  from '../../hooks/useFcm';
@@ -19,6 +20,7 @@ import MapaModal from './MapaModal';
 
 const Mapa = () => {
 
+  const uidActual = useSelector(state => state.auth);
   const [imgStates, setImgStates] = useState({});
   const isFirstLoad = useRef(true); // Para evitar sobrescribir al cargar por primera vez
   const ignoreNext = useRef(false); // Para evitar bucles de sincronización
@@ -252,7 +254,13 @@ const Mapa = () => {
     let src = getSrc(id);
 
     if ((main === 4 || main === 7) && modal.target) {
-      // Prepare insertion data before updating state
+      const estadoAnterior = imgStates[id] || {};
+      const mainAnterior = estadoAnterior.main;
+      const tienePermiso = closeTimer(mainAnterior, uidActual?.uid);
+      if (!tienePermiso) {
+        window.alert('No tienes permiso para cerrar este tiempo.');
+        return;
+      }
       setImgStates(prev => {
         const prevState = prev[id] || {};
         const now = Date.now();

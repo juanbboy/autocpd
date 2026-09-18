@@ -20,7 +20,7 @@ const LoginScreen = () => {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        dispatch(startLoginEmailPassword(email + "@solicitudes.com", password));
+        dispatch(startLoginEmailPassword(email, password));
         dispatch(removeError())
     }
 
@@ -38,14 +38,19 @@ const LoginScreen = () => {
                             </div>
                         )
                     }
-                    <div className="form-floating text-center">
-                        <select className="form-select" size="lg" name="email" id="email" value={email} onChange={handleInputChange} required>
-                            <option>Departamento</option>
-                            <option value="elasticos">Elasticos</option>
-                            <option value="tintoreria">Tintoreria</option>
-                            <option value="circularespd">Circular PD</option>
-                            <option value="circularesgd">Circular GD</option>
-                        </select>
+                    <div className="form-floating">
+                        <input
+                            type="email"
+                            className="form-control"
+                            id="floatingInput"
+                            placeholder="name@example.com"
+                            v-model="student.email"
+                            name="email"
+                            value={email}
+                            onChange={handleInputChange}
+                            required />
+
+                        <label htmlFor="floatingInput">Correo electronico</label>
                     </div>
 
                     <div className="form-floating">

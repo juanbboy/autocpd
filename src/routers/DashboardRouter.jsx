@@ -10,7 +10,7 @@ const DashboardRouter = () => {
     return (
         <div>
             <Navbar />
-            <div className="mx-3 my-4">
+            <div className="App mx-3 my-4" >
                 <Routes>
                     <Route path="/" element={<Mapa />} />
                     <Route path="/register" element={<RegisterScreen />} />
