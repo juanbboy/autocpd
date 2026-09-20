@@ -35,6 +35,9 @@ const Mapa = () => {
 
   useFirebaseSync(dbRef, setImgStates, ignoreNext, isFirstLoad);
   const timers = useMachineTimers(imgStates);
+  const productionMachineCount = Object.values(imgStates).filter(
+    state => state && state.main === 4
+  ).length;
 
   const getTimerLabel = (id) => {
     const timer = timers[id];
@@ -399,6 +402,7 @@ const Mapa = () => {
         <span className="d-block d-md-none" style={{ fontSize: 26 }}>Circulares Pequeño Diametro</span>
         <span className="d-none d-md-block" style={{ fontSize: 36 }}>Circulares Pequeño Diametro</span>
       </h1>
+
       {/* Grid de máquinas para móvil */}
       <div className="p-1 d-block d-md-none">
         {/* Aquí se renderiza el grid de máquinas para móvil */}
@@ -412,15 +416,15 @@ const Mapa = () => {
         >
           {[
             // Solo IDs únicos para móvil, sin repetición de máquinas
-            "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23",
-            "28", "30", "33", "34", "35", "36", "38", "39", "43", "44", "46", "48", "49", "50", "51", "52", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
+            "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25",
+            "28", "30", "33", "34", "35", "36", "39", "43", "44", "46", "48", "49", "50", "51", "52", "54", "55", "56", "57", "58", "64", "65", "66", "67", "69", "70", "71", "72", "73", "74", "75", "76"
           ].map(id => (
             <div key={id} style={{ marginBottom: 2, width: 90, textAlign: "center" }}>
               <input
                 type="image"
                 onClick={img}
                 src={getSrc(id)}
-                width={["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23"].includes(id) ? 90 : 60}
+                width={["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25"].includes(id) ? 90 : 60}
                 alt={id}
                 data-id={id}
                 style={{
@@ -459,6 +463,20 @@ const Mapa = () => {
       {/* Grid de máquinas para PC/tablet */}
       <div className="px-4 d-none d-md-block">
         <div className="row py-4 text-center">
+          <div className="col p-0 ">
+
+            <input type="image" onClick={img} src={getSrc("S24")} width={90} alt="Placeholder" data-id="S24"
+              className='borde' />
+            <div>
+              <strong>S24</strong>
+              <div className="mq">
+                {getSecondaryLabel("S24") || "\u00A0"}
+              </div>
+              {getTimerLabel("S24")}
+            </div>
+          </div>
+
+
           <div className="col p-0 ">
 
             <input type="image" onClick={img} src={getSrc("S23")} width={90} alt="Placeholder" data-id="S23"
@@ -643,6 +661,18 @@ const Mapa = () => {
         </div>
 
         <div className="row py-5 text-center no-gutters align-items-start">
+
+          <div className="col p-0 ">
+
+            <input type="image" onClick={img} src={getSrc("S25")} width={90} alt="Placeholder" data-id="S25"
+              className='borde' />
+            <div>
+              <strong>S25</strong>
+
+              <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S25")}</div>
+              {getTimerLabel("S25")}
+            </div>
+          </div>
 
           <div className="col p-0 ">
 
@@ -1231,6 +1261,13 @@ const Mapa = () => {
       </div>
 
       {/* Botones de acciones principales */}
+      {
+        (uidActual === "yeT0Zn7Q5meOeZbunU0sGNaU0Xd2") ?
+          <div className="text-center mb-3" style={{ fontSize: 20, color: '#198754' }}>
+            Máquinas en producción: <strong>{productionMachineCount}</strong>
+          </div>
+          : ""
+      }
       <div className="row justify-content-sm-end justify-content-center  mb-3 ">
         <div className="col-auto">
           {/* <button className=" m-1 btn btn-success 2" onClick={handleSaveSnapshotNow}>
