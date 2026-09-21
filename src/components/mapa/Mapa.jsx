@@ -402,7 +402,13 @@ const Mapa = () => {
         <span className="d-block d-md-none" style={{ fontSize: 26 }}>Circulares Pequeño Diametro</span>
         <span className="d-none d-md-block" style={{ fontSize: 36 }}>Circulares Pequeño Diametro</span>
       </h1>
-
+      {
+        (uidActual === 'yeT0Zn7Q5meOeZbunU0sGNaU0Xd2') ?
+          <div className="text-center mb-3" style={{ fontSize: 20, color: '#198754' }}>
+            Máquinas en producción: <strong>{productionMachineCount}</strong>
+          </div>
+          : ""
+      }
       {/* Grid de máquinas para móvil */}
       <div className="p-1 d-block d-md-none">
         {/* Aquí se renderiza el grid de máquinas para móvil */}
@@ -1261,13 +1267,7 @@ const Mapa = () => {
       </div>
 
       {/* Botones de acciones principales */}
-      {
-        (uidActual === "yeT0Zn7Q5meOeZbunU0sGNaU0Xd2") ?
-          <div className="text-center mb-3" style={{ fontSize: 20, color: '#198754' }}>
-            Máquinas en producción: <strong>{productionMachineCount}</strong>
-          </div>
-          : ""
-      }
+
       <div className="row justify-content-sm-end justify-content-center  mb-3 ">
         <div className="col-auto">
           {/* <button className=" m-1 btn btn-success 2" onClick={handleSaveSnapshotNow}>
