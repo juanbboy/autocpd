@@ -13,6 +13,7 @@ export const mainOptions = [
     { label: "Alistamiento", main: 15, code: "DI07", className: "btn btn-success", hasSecondary: false },
     { label: "Inicio Producción", main: 4, code: "I29", className: "btn btn-success", hasSecondary: false },
     { label: "Disponible", main: 5, code: "", className: "btn btn-outline-dark", hasSecondary: false },
+    { label: "Falta de repuestos", main: 12, code: "", className: "btn btn-outline-dark", hasSecondary: false },
     { label: "Fin Producción", main: 7, code: "I30", className: "btn btn-outline-dark", hasSecondary: false },
 
 ];

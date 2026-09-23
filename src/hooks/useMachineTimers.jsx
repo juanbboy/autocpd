@@ -14,6 +14,7 @@ const getMachineTimerText = (state, now) => {
         state.main === 4 ||
         state.main === 5 ||
         state.main === 7 ||
+        state.main === 12 ||
         !state.startedAt
     ) {
         return null;

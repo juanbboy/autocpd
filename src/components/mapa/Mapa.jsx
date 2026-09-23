@@ -329,7 +329,7 @@ const Mapa = () => {
             secondary: null,
             main,
             secondaryCustom: undefined,
-            startedAt: main === 5
+            startedAt: main === 5 || main === 12
               ? null
               : prevState.startedAt || now,
             operador: modal.operador ?? prevState.operador,
