@@ -267,7 +267,8 @@ const Mapa = () => {
       setImgStates(prev => {
         const prevState = prev[id] || {};
         const now = Date.now();
-        const turno = getOperarioTurno(modal.operador ?? imgStates[id]?.operador);
+        const operadorActual = prevState.operador ?? modal.operador ?? imgStates[id]?.operador ?? null;
+        const turno = prevState.turno ?? modal.turno ?? getOperarioTurno(operadorActual);
         if (prevState.startedAt) {
           const elapsedSeconds = prevState.startedAt ? Math.round((now - prevState.startedAt) / 1000) : prevState.lastElapsedSeconds || 0;
           (async () => {
@@ -281,7 +282,7 @@ const Mapa = () => {
                 start_at: prevState.startedAt ? new Date(prevState.startedAt).toISOString() : null,
                 end_at: new Date(now).toISOString(),
                 elapsed_seconds: elapsedSeconds,
-                MALAS: modal.operador ?? imgStates[id]?.operador ?? null,
+                MALAS: operadorActual,
                 TURNO: turno,
                 H_I: prevState.startedAt ? new Date(prevState.startedAt).getHours() : null,
                 M_I: prevState.startedAt ? new Date(prevState.startedAt).getMinutes() : null,
