@@ -12,7 +12,10 @@ import { mainOptions, mainId } from '../../config/mainOptionsConfig';
 import { secondaryOptionsMap } from '../../config/secondaryOptionsConfig';
 import { getImageBySrc } from '../../config/machineColorsConfig';
 import MapaModal from './MapaModal';
-import { closeTimer } from '../../config/permissions';
+import { closeTimer, canManageMachineReferences } from '../../config/permissions';
+import { subscribeMachineReferences, getMachineReference } from '../../config/machineReferencesConfig';
+import MachineReferencesAdmin from '../admin/MachineReferencesAdmin';
+
 //import { preParseFinder } from 'echarts/types/src/util/model.js';
 // import { requestNotificationPermissionAndToken } from '../../hooks/useToken';
 // import { useFCM }  from '../../hooks/useFcm';
@@ -27,6 +30,8 @@ const Mapa = () => {
   const syncTimeout = useRef(null);
   const [modal, setModal] = useState({ show: false, target: null, main: null });
   const [askedOperarios, setAskedOperarios] = useState({});
+  const [machineReferences, setMachineReferences] = useState({});
+  const [showAdminModal, setShowAdminModal] = useState(false);
   //const [refsLoaded, setRefsLoaded] = useState(false);
 
 
@@ -119,6 +124,14 @@ const Mapa = () => {
     limpiarMarkOperarioAsked();
   }, []);
 
+
+  useEffect(() => {
+    const unsubscribe = subscribeMachineReferences((references) => {
+      setMachineReferences(references);
+    });
+
+    return unsubscribe;
+  }, []);
   // Comprueba si un operario ya fue preguntado hoy (lookup en caché)
   const checkOperarioAsked = (nombre) => {
     return Boolean(askedOperarios && askedOperarios[nombre]);
@@ -403,12 +416,11 @@ const Mapa = () => {
         <span className="d-block d-md-none" style={{ fontSize: 26 }}>Circulares Pequeño Diametro</span>
         <span className="d-none d-md-block" style={{ fontSize: 36 }}>Circulares Pequeño Diametro</span>
       </h1>
-      {
-        (uidActual === 'yeT0Zn7Q5meOeZbunU0sGNaU0Xd2') ?
-          <div className="text-center mb-3" style={{ fontSize: 20, color: '#198754' }}>
-            Máquinas en producción: <strong>{productionMachineCount}</strong>
-          </div>
-          : ""
+      {canManageMachineReferences(uidActual?.uid) && (
+        <div className="text-center mb-3" style={{ fontSize: 20, color: '#198754' }}>
+          Máquinas en producción: <strong>{productionMachineCount}</strong>
+        </div>
+      )
       }
       {/* Grid de máquinas para móvil */}
       <div className="p-1 d-block d-md-none">
@@ -444,6 +456,9 @@ const Mapa = () => {
               <div>
                 <strong>{id}</strong>
               </div>
+              <div className='ref'>
+                {getMachineReference(machineReferences, id)}
+              </div>
               <div style={{ fontSize: 11, color: "#666", marginBottom: 4 }}>
               </div>
               <div style={{
@@ -461,6 +476,7 @@ const Mapa = () => {
                 borderRadius: 12
               }}>
                 {getSecondaryLabel(id) || "\u00A0"}
+
               </div>
               {getTimerLabel(id)}
             </div>
@@ -476,6 +492,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S24</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S24")}
+              </div>
               <div className="mq">
                 {getSecondaryLabel("S24") || "\u00A0"}
               </div>
@@ -490,6 +509,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S23</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S23")}
+              </div>
               <div className="mq">
                 {getSecondaryLabel("S23") || "\u00A0"}
               </div>
@@ -502,6 +524,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S3</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S3")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S3") || "\u00A0"}
@@ -515,6 +540,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S2</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S2")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S2") || "\u00A0"}
@@ -528,6 +556,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S1</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S1")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S1") || "\u00A0"}
@@ -541,6 +572,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S6</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S6")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S6") || "\u00A0"}
@@ -553,6 +587,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S7</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S7")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S7") || "\u00A0"}
@@ -566,6 +603,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S8</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S8")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S8") || "\u00A0"}
@@ -579,6 +619,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S9</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S9")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S9") || "\u00A0"}
@@ -592,6 +635,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S10</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S10")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S10") || "\u00A0"}
@@ -605,6 +651,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S11</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S11")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S11") || "\u00A0"}
@@ -618,6 +667,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S12</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S12")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S12") || "\u00A0"}
@@ -631,6 +683,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S13</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S13")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S13") || "\u00A0"}
@@ -644,6 +699,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S14</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S14")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S14") || "\u00A0"}
@@ -657,6 +715,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S15</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S15")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("S15") || "\u00A0"}
@@ -675,6 +736,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S25</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S25")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S25")}</div>
               {getTimerLabel("S25")}
@@ -687,6 +751,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S22</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S22")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S22")}</div>
               {getTimerLabel("S22")}
@@ -699,6 +766,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S21</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S21")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S21")}</div>
               {getTimerLabel("S21")}
@@ -711,6 +781,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S20</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S20")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S20")}</div>
               {getTimerLabel("S20")}
@@ -723,6 +796,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S19</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S19")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S19")}</div>
               {getTimerLabel("S19")}
@@ -734,6 +810,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S18</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S18")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S18")}</div>
               {getTimerLabel("S18")}
@@ -745,6 +824,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S17</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S17")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S17")}</div>
               {getTimerLabel("S17")}
@@ -756,6 +838,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S16</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S16")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S16")}</div>
               {getTimerLabel("S16")}
@@ -766,6 +851,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S4</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S4")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S4")}</div>
               {getTimerLabel("S4")}
@@ -777,6 +865,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>S5</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "S5")}
+              </div>
 
               <div style={{ fontSize: 14, color: "#888" }}>{getSecondaryLabel("S5")}</div>
               {getTimerLabel("S5")}
@@ -791,6 +882,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>66</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "S11")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("66") || "\u00A0"}
@@ -806,6 +900,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>58</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "58")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("58") || "\u00A0"}
@@ -823,6 +920,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>67</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "67")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("67") || "\u00A0"}
@@ -838,6 +938,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>57</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "57")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("57") || "\u00A0"}
@@ -855,6 +958,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>28</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "28")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("28") || "\u00A0"}
@@ -870,6 +976,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>56</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "56")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("56") || "\u00A0"}
@@ -887,6 +996,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>30</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "30")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("30") || "\u00A0"}
@@ -902,6 +1014,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>54</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "54")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("54") || "\u00A0"}
@@ -919,6 +1034,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>33</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "33")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("33") || "\u00A0"}
@@ -934,6 +1052,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>52</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "52")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("52") || "\u00A0"}
@@ -951,6 +1072,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>34</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "34")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("34") || "\u00A0"}
@@ -966,6 +1090,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>51</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "51")}
+                  </div>
 
                   <div className='mq'>
                     {getSecondaryLabel("51") || "\u00A0"}
@@ -983,6 +1110,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>35</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "35")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("35") || "\u00A0"}
@@ -999,6 +1129,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>50</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "50")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("50") || "\u00A0"}
@@ -1016,6 +1149,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>36</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "36")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("36") || "\u00A0"}
@@ -1031,6 +1167,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>44</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "44")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("44") || "\u00A0"}
@@ -1048,6 +1187,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>39</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "39")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("39") || "\u00A0"}
@@ -1063,6 +1205,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>43</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "43")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("43") || "\u00A0"}
@@ -1082,6 +1227,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>64</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "64")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("64") || "\u00A0"}
@@ -1095,6 +1243,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>65</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "65")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("65") || "\u00A0"}
@@ -1111,6 +1262,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>55</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "55")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("55") || "\u00A0"}
@@ -1125,6 +1279,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>46</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "46")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("46") || "\u00A0"}
@@ -1140,6 +1297,9 @@ const Mapa = () => {
                   className='borde' />
                 <div>
                   <strong>49</strong>
+                  <div className='ref'>
+                    {getMachineReference(machineReferences, "49")}
+                  </div>
 
                   <div className="mq">
                     {getSecondaryLabel("49") || "\u00A0"}
@@ -1154,6 +1314,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>48</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "48")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("48") || "\u00A0"}
@@ -1167,6 +1330,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>69</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "69")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("69") || "\u00A0"}
@@ -1180,6 +1346,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>70</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "70")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("70") || "\u00A0"}
@@ -1193,6 +1362,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>71</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "71")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("71") || "\u00A0"}
@@ -1206,6 +1378,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>72</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "72")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("72") || "\u00A0"}
@@ -1219,6 +1394,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>73</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "73")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("73") || "\u00A0"}
@@ -1232,6 +1410,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>74</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "74")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("74") || "\u00A0"}
@@ -1245,6 +1426,9 @@ const Mapa = () => {
               className='borde' />
             <div>
               <strong>75</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "75")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("75") || "\u00A0"}
@@ -1257,6 +1441,9 @@ const Mapa = () => {
             <input type="image" onClick={img} src={getSrc("76")} width={60} alt="Placeholder" data-id="76" className='borde' />
             <div>
               <strong>76</strong>
+              <div className='ref'>
+                {getMachineReference(machineReferences, "76")}
+              </div>
 
               <div className="mq">
                 {getSecondaryLabel("76") || "\u00A0"}
@@ -1270,6 +1457,18 @@ const Mapa = () => {
       {/* Botones de acciones principales */}
 
       <div className="row justify-content-sm-end justify-content-center  mb-3 ">
+
+        <div className="col-auto">
+          {canManageMachineReferences(uidActual?.uid) && (
+            <button
+              className="m-1 btn btn-info"
+              onClick={() => setShowAdminModal(true)}
+              title="Gestionar referencias de máquinas"
+            >
+              ⚙ Gestionar referencias
+            </button>
+          )}
+        </div>
         <div className="col-auto">
           {/* <button className=" m-1 btn btn-success 2" onClick={handleSaveSnapshotNow}>
             Guardar estado
@@ -1311,6 +1510,10 @@ const Mapa = () => {
 
       />
 
+      <MachineReferencesAdmin
+        isOpen={showAdminModal}
+        onClose={() => setShowAdminModal(false)}
+      />
 
       {/* --- Modal para mostrar observaciones generales de los snapshots --- */}
       {/* {

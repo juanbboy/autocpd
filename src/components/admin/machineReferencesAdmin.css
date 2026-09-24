@@ -1,0 +1,309 @@
+.machine-admin-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.machine-admin-modal {
+    background: white;
+    border-radius: 8px;
+    max-width: 900px;
+    width: 90%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.machine-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.machine-admin-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.machine-admin-body {
+    overflow-y: auto;
+    padding: 20px;
+    flex: 1;
+}
+
+.add-machine-section {
+    margin-bottom: 30px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border-left: 4px solid #007bff;
+}
+
+.add-machine-section h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.form-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.form-group input {
+    flex: 1;
+    min-width: 150px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.btn-add {
+    padding: 10px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.btn-add:hover {
+    background: #218838;
+}
+
+.search-section {
+    margin-bottom: 20px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.machines-list h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: #999;
+    background: #f9f9f9;
+    border-radius: 6px;
+}
+
+.machines-table {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 1fr 2fr 150px;
+    gap: 10px;
+    padding: 12px;
+    background: #f0f0f0;
+    border-bottom: 2px solid #ddd;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.col-id {
+    display: flex;
+    align-items: center;
+}
+
+.col-ref {
+    display: flex;
+    align-items: center;
+}
+
+.col-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 150px;
+    gap: 10px;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.table-row:hover {
+    background: #f9f9f9;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #007bff;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.edit-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.col-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+button.btn-edit,
+button.btn-delete,
+button.btn-save,
+button.btn-cancel {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    background: #f0f0f0;
+}
+
+button.btn-edit:hover {
+    background: #007bff;
+    color: white;
+}
+
+button.btn-delete:hover {
+    background: #dc3545;
+    color: white;
+}
+
+button.btn-save:hover {
+    background: #28a745;
+    color: white;
+}
+
+button.btn-cancel:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.machine-admin-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-close {
+    padding: 10px 24px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.btn-close:hover {
+    background: #5a6268;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .table-header,
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .table-header::before,
+    .table-row::before {
+        content: attr(data-label);
+        font-weight: 600;
+    }
+
+    .machine-admin-modal {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .form-group {
+        flex-direction: column;
+    }
+
+    .form-group input,
+    .btn-add {
+        width: 100%;
+    }
+}
